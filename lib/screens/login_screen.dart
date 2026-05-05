@@ -3,7 +3,8 @@ import '../services/auth_service.dart';
 import '../models/user.dart';
 import '../utils/app_colors.dart';
 import '../widgets/app_text.dart';
-import 'home_screen.dart';
+import '../widgets/custom_text_field.dart';
+import 'base_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -69,12 +70,22 @@ class _LoginScreenState extends State<LoginScreen>
 
       final token = result['access_token'] as String;
       final usuario = result['usuario'] as User;
+      final message = result['message'] as String;
 
       if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: AppText.corpo(message, color: AppColors.textOnAccent),
+          backgroundColor: AppColors.success,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
           pageBuilder: (_, __, ___) =>
-              HomeScreen(token: token, usuario: usuario),
+              BaseScreen(token: token, usuario: usuario),
           transitionsBuilder: (_, anim, __, child) =>
               FadeTransition(opacity: anim, child: child),
           transitionDuration: const Duration(milliseconds: 500),
@@ -139,10 +150,9 @@ class _LoginScreenState extends State<LoginScreen>
               ),
             ],
           ),
-          child: const Icon(
-            Icons.traffic_rounded,
-            size: 40,
-            color: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Image.asset('assets/images/lagarto_logo.png'),
           ),
         ),
         const SizedBox(height: 20),
@@ -186,7 +196,7 @@ class _LoginScreenState extends State<LoginScreen>
             const AppText.pequeno('Use suas credenciais de acesso'),
             const SizedBox(height: 24),
 
-            _buildTextField(
+            CustomTextField(
               controller: _emailController,
               label: 'E-mail',
               icon: Icons.email_outlined,
@@ -199,7 +209,7 @@ class _LoginScreenState extends State<LoginScreen>
             ),
             const SizedBox(height: 14),
 
-            _buildTextField(
+            CustomTextField(
               controller: _passwordController,
               label: 'Senha',
               icon: Icons.lock_outline_rounded,
@@ -288,52 +298,5 @@ class _LoginScreenState extends State<LoginScreen>
       ),
     );
   }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    TextInputType keyboardType = TextInputType.text,
-    bool obscureText = false,
-    Widget? suffixIcon,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      obscureText: obscureText,
-      style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle:
-            const TextStyle(color: AppColors.textMuted, fontSize: 13),
-        prefixIcon: Icon(icon, color: AppColors.textMuted, size: 18),
-        suffixIcon: suffixIcon,
-        filled: true,
-        fillColor: AppColors.primaryDark,
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.divider),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide:
-              const BorderSide(color: AppColors.accent, width: 1.5),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide:
-              BorderSide(color: AppColors.error.withOpacity(0.6)),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.error),
-        ),
-        errorStyle: const TextStyle(color: AppColors.error, fontSize: 11),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-      ),
-      validator: validator,
-    );
-  }
 }
+

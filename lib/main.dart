@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/login_screen.dart';
 import 'utils/app_colors.dart';
 
-void main() {
+Future<void> main() async {
+  await dotenv.load(fileName: ".env");
   runApp(const UrbanSyncApp());
 }
 
@@ -22,11 +24,11 @@ class UrbanSyncApp extends StatelessWidget {
   ThemeData _buildTheme() {
     return ThemeData(
       useMaterial3: true,
-      colorScheme: const ColorScheme.dark(
-        primary: AppColors.accent,
+      colorScheme: const ColorScheme.light(
+        primary: AppColors.primary,
         onPrimary: AppColors.textOnAccent,
-        secondary: AppColors.primaryLight,
-        onSecondary: AppColors.textPrimary,
+        secondary: AppColors.accent,
+        onSecondary: AppColors.textOnAccent,
         surface: AppColors.surface,
         onSurface: AppColors.textPrimary,
         error: AppColors.error,
@@ -35,15 +37,15 @@ class UrbanSyncApp extends StatelessWidget {
       scaffoldBackgroundColor: AppColors.background,
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.textPrimary,
+        foregroundColor: AppColors.textOnAccent,
         elevation: 0,
         centerTitle: false,
         titleTextStyle: TextStyle(
-          color: AppColors.textPrimary,
+          color: AppColors.textOnAccent,
           fontSize: 18,
           fontWeight: FontWeight.bold,
         ),
-        iconTheme: IconThemeData(color: AppColors.textPrimary),
+        iconTheme: IconThemeData(color: AppColors.textOnAccent),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -62,7 +64,7 @@ class UrbanSyncApp extends StatelessWidget {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.primaryDark,
+        fillColor: AppColors.surface,
         labelStyle: const TextStyle(color: AppColors.textMuted, fontSize: 13),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),

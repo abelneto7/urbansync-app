@@ -20,6 +20,7 @@ class AuthService {
       return {
         'access_token': data['access_token'] as String,
         'usuario': User.fromJson(data['usuario'] as Map<String, dynamic>),
+        'message': body['message'] as String? ?? 'Login realizado com sucesso.',
       };
     }
 
@@ -44,12 +45,15 @@ class AuthService {
     throw Exception('Não foi possível obter dados do usuário.');
   }
 
-  Future<void> logout(String token) async {
+  Future<String> logout(String token) async {
     final uri = Uri.parse('${ApiService.baseUrl}/auth/logout');
 
-    await http.post(
+    final response = await http.post(
       uri,
       headers: ApiService.authHeaders(token),
     );
+
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    return body['message'] as String? ?? 'Sessão encerrada.';
   }
 }

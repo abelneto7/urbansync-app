@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'api_service.dart';
-import '../models/interdicao.dart';
+import '../models/user.dart';
 
-class InterdicaoService {
-  Future<List<Interdicao>> listar(String token) async {
-    final uri = Uri.parse('${ApiService.baseUrl}/interdicao');
+class UserService {
+  Future<List<User>> listar(String token) async {
+    final uri = Uri.parse('${ApiService.baseUrl}/usuario');
 
     final response = await http.get(
       uri,
@@ -26,36 +26,26 @@ class InterdicaoService {
         lista = [];
       }
 
-      return lista
-          .map((e) => Interdicao.fromJson(e as Map<String, dynamic>))
-          .toList();
+      return lista.map((e) => User.fromJson(e as Map<String, dynamic>)).toList();
     }
 
-    final message = body['message'] as String? ?? 'Erro ao listar interdições.';
+    final message = body['message'] as String? ?? 'Erro ao listar usuários.';
     throw Exception(message);
   }
 
-  Future<ApiResponse<Interdicao>> cadastrar({
+  Future<ApiResponse<User>> cadastrar({
     required String token,
-    required String titulo,
-    String? descricao,
-    required double latitude,
-    required double longitude,
-    required int tipo,
-    required bool status,
+    required String nome,
+    required String email,
+    required String password,
   }) async {
-    final uri = Uri.parse('${ApiService.baseUrl}/interdicao');
+    final uri = Uri.parse('${ApiService.baseUrl}/usuario');
 
     final payload = <String, dynamic>{
-      'titulo': titulo,
-      'latitude': latitude,
-      'longitude': longitude,
-      'tipo': tipo,
-      'status': status,
+      'name': nome,
+      'email': email,
+      'password': password,
     };
-    if (descricao != null && descricao.isNotEmpty) {
-      payload['descricao'] = descricao;
-    }
 
     final response = await http.post(
       uri,
@@ -67,19 +57,19 @@ class InterdicaoService {
 
     if ((response.statusCode == 200 || response.statusCode == 201) &&
         body['status'] == 'success') {
-      return ApiResponse<Interdicao>(
-        data: Interdicao.fromJson(body['data'] as Map<String, dynamic>),
-        message: body['message'] as String? ?? 'Interdição cadastrada com sucesso.',
+      return ApiResponse<User>(
+        data: User.fromJson(body['data'] as Map<String, dynamic>),
+        message: body['message'] as String? ?? 'Usuário cadastrado com sucesso.',
       );
     }
 
     final message =
-        body['message'] as String? ?? 'Erro ao cadastrar interdição.';
+        body['message'] as String? ?? 'Erro ao cadastrar usuário.';
     throw Exception(message);
   }
 
   Future<String> remover({required String token, required int id}) async {
-    final uri = Uri.parse('${ApiService.baseUrl}/interdicao/$id');
+    final uri = Uri.parse('${ApiService.baseUrl}/usuario/$id');
 
     final response = await http.delete(
       uri,
@@ -89,10 +79,10 @@ class InterdicaoService {
     final body = jsonDecode(response.body) as Map<String, dynamic>;
 
     if ((response.statusCode == 200 || response.statusCode == 204) && body['status'] == 'success') {
-      return body['message'] as String? ?? 'Interdição removida com sucesso.';
+      return body['message'] as String? ?? 'Usuário removido com sucesso.';
     }
 
-    final message = body['message'] as String? ?? 'Erro ao remover interdição.';
+    final message = body['message'] as String? ?? 'Erro ao remover usuário.';
     throw Exception(message);
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/interdicao_service.dart';
 import '../utils/app_colors.dart';
 import '../widgets/app_text.dart';
+import '../widgets/custom_text_field.dart';
 
 class CadastroScreen extends StatefulWidget {
   final String token;
@@ -50,7 +51,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
     });
 
     try {
-      final interdicao = await _interdicaoService.cadastrar(
+      final response = await _interdicaoService.cadastrar(
         token: widget.token,
         titulo: _tituloController.text.trim(),
         descricao: _descricaoController.text.trim().isEmpty
@@ -63,7 +64,15 @@ class _CadastroScreenState extends State<CadastroScreen> {
       );
 
       if (!mounted) return;
-      Navigator.of(context).pop(interdicao);
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: AppText.corpo(response.message, color: AppColors.textOnAccent),
+          backgroundColor: AppColors.success,
+        ),
+      );
+
+      Navigator.of(context).pop(response.data);
     } catch (e) {
       setState(() {
         _errorMessage = e.toString().replaceFirst('Exception: ', '');
@@ -101,7 +110,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
               _buildSectionLabel('Informações básicas'),
               const SizedBox(height: 12),
 
-              _buildTextField(
+              CustomTextField(
                 controller: _tituloController,
                 label: 'Título *',
                 icon: Icons.title_rounded,
@@ -113,7 +122,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
               ),
               const SizedBox(height: 12),
 
-              _buildTextField(
+              CustomTextField(
                 controller: _descricaoController,
                 label: 'Descrição (opcional)',
                 icon: Icons.description_outlined,
@@ -122,20 +131,18 @@ class _CadastroScreenState extends State<CadastroScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Seção: Tipo
               _buildSectionLabel('Tipo de interdição'),
               const SizedBox(height: 12),
               _buildTipoSelector(),
               const SizedBox(height: 20),
 
-              // Seção: Localização
               _buildSectionLabel('Localização (coordenadas)'),
               const SizedBox(height: 12),
 
               Row(
                 children: [
                   Expanded(
-                    child: _buildTextField(
+                    child: CustomTextField(
                       controller: _latitudeController,
                       label: 'Latitude *',
                       icon: Icons.my_location_rounded,
@@ -154,7 +161,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: _buildTextField(
+                    child: CustomTextField(
                       controller: _longitudeController,
                       label: 'Longitude *',
                       icon: Icons.explore_outlined,
@@ -359,56 +366,6 @@ class _CadastroScreenState extends State<CadastroScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    TextInputType keyboardType = TextInputType.text,
-    int maxLines = 1,
-    int? maxLength,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      maxLines: maxLines,
-      maxLength: maxLength,
-      style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle:
-            const TextStyle(color: AppColors.textMuted, fontSize: 13),
-        prefixIcon: Icon(icon, color: AppColors.textMuted, size: 18),
-        filled: true,
-        fillColor: AppColors.primaryDark,
-        counterStyle:
-            const TextStyle(color: AppColors.textMuted, fontSize: 10),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.divider),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide:
-              const BorderSide(color: AppColors.accent, width: 1.5),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide:
-              BorderSide(color: AppColors.error.withOpacity(0.6)),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.error),
-        ),
-        errorStyle: const TextStyle(color: AppColors.error, fontSize: 11),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      ),
-      validator: validator,
     );
   }
 }

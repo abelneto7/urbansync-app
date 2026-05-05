@@ -1,11 +1,8 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
+import '../config/env_config.dart';
 
 class ApiService {
   static String get baseUrl {
-    if (kIsWeb) {
-      return 'http://localhost:8000/api/v1';
-    }
-    return 'http://10.0.2.2:8000/api/v1';
+    return EnvConfig.apiUrl;
   }
 
   static Map<String, String> get defaultHeaders => {
@@ -17,4 +14,11 @@ class ApiService {
         ...defaultHeaders,
         'Authorization': 'Bearer $token',
       };
+}
+
+class ApiResponse<T> {
+  final T data;
+  final String message;
+
+  ApiResponse({required this.data, required this.message});
 }
