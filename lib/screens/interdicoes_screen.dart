@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import '../models/interdicao.dart';
 import '../services/interdicao_service.dart';
 import '../utils/app_colors.dart';
+import '../utils/snackbar_utils.dart';
 import '../widgets/app_text.dart';
 import '../widgets/interdicao_card.dart';
+import '../viewmodels/interdicoes_viewmodel.dart';
 import 'cadastro_screen.dart';
 
 class InterdicoesScreen extends StatefulWidget {
@@ -16,36 +18,23 @@ class InterdicoesScreen extends StatefulWidget {
 }
 
 class _InterdicoesScreenState extends State<InterdicoesScreen> {
-  final List<Interdicao> _interdicoes = [];
-  final _interdicaoService = InterdicaoService();
-  bool _isLoading = true;
-  String? _errorMessage;
+  late final InterdicoesViewModel _viewModel;
 
   @override
   void initState() {
     super.initState();
+    _viewModel = InterdicoesViewModel(InterdicaoService());
     _carregarInterdicoes();
   }
 
-  Future<void> _carregarInterdicoes() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+  @override
+  void dispose() {
+    _viewModel.dispose();
+    super.dispose();
+  }
 
-    try {
-      final lista = await _interdicaoService.listar(widget.token);
-      setState(() {
-        _interdicoes.clear();
-        _interdicoes.addAll(lista);
-      });
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString().replaceFirst('Exception: ', '');
-      });
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
+  Future<void> _carregarInterdicoes() async {
+    await _viewModel.carregarInterdicoes(widget.token);
   }
 
   Future<void> _removerInterdicao(Interdicao interdicao) async {
@@ -71,23 +60,13 @@ class _InterdicoesScreenState extends State<InterdicoesScreen> {
     if (confirmar != true) return;
 
     try {
-      final message = await _interdicaoService.remover(token: widget.token, id: interdicao.id);
-      setState(() {
-        _interdicoes.removeWhere((i) => i.id == interdicao.id);
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: AppText.corpo(message, color: AppColors.textOnAccent),
-            backgroundColor: AppColors.success,
-          ),
-        );
+      final message = await _viewModel.removerInterdicao(widget.token, interdicao);
+      if (mounted && message != null) {
+        SnackbarUtils.showSuccess(context, message);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: AppText.corpo('Erro: $e', color: AppColors.error)),
-        );
+        SnackbarUtils.showError(context, 'Erro: $e');
       }
     }
   }
@@ -100,9 +79,7 @@ class _InterdicoesScreenState extends State<InterdicoesScreen> {
     );
 
     if (resultado != null) {
-      setState(() {
-        _interdicoes.insert(0, resultado);
-      });
+      _viewModel.adicionarInterdicaoLocal(resultado);
     }
   }
 
@@ -122,44 +99,49 @@ class _InterdicoesScreenState extends State<InterdicoesScreen> {
   }
 
   Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator(color: AppColors.accent));
-    }
+    return ListenableBuilder(
+      listenable: _viewModel,
+      builder: (context, _) {
+        if (_viewModel.isLoading) {
+          return const Center(child: CircularProgressIndicator(color: AppColors.accent));
+        }
 
-    if (_errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.cloud_off_rounded, color: AppColors.textMuted, size: 48),
-            const SizedBox(height: 16),
-            AppText.corpo(_errorMessage!),
-            ElevatedButton(onPressed: _carregarInterdicoes, child: const Text('Tentar novamente'))
-          ],
-        ),
-      );
-    }
-
-    if (_interdicoes.isEmpty) {
-      return const Center(
-        child: AppText.corpo('Nenhuma interdição cadastrada.', color: AppColors.textMuted),
-      );
-    }
-
-    return RefreshIndicator(
-      onRefresh: _carregarInterdicoes,
-      color: AppColors.accent,
-      child: ListView.builder(
-        padding: const EdgeInsets.only(bottom: 80, top: 12),
-        itemCount: _interdicoes.length,
-        itemBuilder: (context, index) {
-          final interdicao = _interdicoes[index];
-          return InterdicaoCard(
-            interdicao: interdicao,
-            onRemover: () => _removerInterdicao(interdicao),
+        if (_viewModel.errorMessage != null) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.cloud_off_rounded, color: AppColors.textMuted, size: 48),
+                const SizedBox(height: 16),
+                AppText.corpo(_viewModel.errorMessage!),
+                ElevatedButton(onPressed: _carregarInterdicoes, child: const Text('Tentar novamente'))
+              ],
+            ),
           );
-        },
-      ),
+        }
+
+        if (_viewModel.interdicoes.isEmpty) {
+          return const Center(
+            child: AppText.corpo('Nenhuma interdição cadastrada.', color: AppColors.textMuted),
+          );
+        }
+
+        return RefreshIndicator(
+          onRefresh: _carregarInterdicoes,
+          color: AppColors.accent,
+          child: ListView.builder(
+            padding: const EdgeInsets.only(bottom: 80, top: 12),
+            itemCount: _viewModel.interdicoes.length,
+            itemBuilder: (context, index) {
+              final interdicao = _viewModel.interdicoes[index];
+              return InterdicaoCard(
+                interdicao: interdicao,
+                onRemover: () => _removerInterdicao(interdicao),
+              );
+            },
+          ),
+        );
+      }
     );
   }
 }

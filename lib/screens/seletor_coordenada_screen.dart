@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../utils/app_colors.dart';
 import '../widgets/app_text.dart';
+import '../viewmodels/seletor_coordenada_viewmodel.dart';
 
 const _lagarto = LatLng(-10.9167, -37.6500);
 
@@ -28,42 +29,31 @@ class _SeletorCoordenadaScreen extends StatefulWidget {
 
 class _SeletorCoordenadaScreenState extends State<_SeletorCoordenadaScreen> {
   final Completer<GoogleMapController> _controllerCompleter = Completer();
-  LatLng? _marcado;
+  late final SeletorCoordenadaViewModel _viewModel;
 
   @override
   void initState() {
     super.initState();
-    _marcado = widget.posicaoInicial;
+    _viewModel = SeletorCoordenadaViewModel(posicaoInicial: widget.posicaoInicial);
   }
 
-  Set<Marker> get _markers {
-    if (_marcado == null) return {};
-    return {
-      Marker(
-        markerId: const MarkerId('selecionado'),
-        position: _marcado!,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-        infoWindow: InfoWindow(
-          title: 'Posição selecionada',
-          snippet:
-              'Lat: ${_marcado!.latitude.toStringAsFixed(6)}  Lng: ${_marcado!.longitude.toStringAsFixed(6)}',
-        ),
-      ),
-    };
+  @override
+  void dispose() {
+    _viewModel.dispose();
+    super.dispose();
   }
 
   void _onTap(LatLng posicao) {
-    setState(() => _marcado = posicao);
+    _viewModel.marcarPosicao(posicao);
   }
 
   void _confirmar() {
-    if (_marcado == null) return;
-    Navigator.of(context).pop(_marcado);
+    if (_viewModel.marcado == null) return;
+    Navigator.of(context).pop(_viewModel.marcado);
   }
 
   @override
   Widget build(BuildContext context) {
-    final latLng = _marcado;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -80,79 +70,85 @@ class _SeletorCoordenadaScreenState extends State<_SeletorCoordenadaScreen> {
         ),
         centerTitle: false,
       ),
-      body: Stack(
-        children: [
-          GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: widget.posicaoInicial ?? _lagarto,
-              zoom: 14,
-            ),
-            markers: _markers,
-            onTap: _onTap,
-            myLocationEnabled: true,
-            myLocationButtonEnabled: true,
-            mapToolbarEnabled: false,
-            zoomControlsEnabled: false,
-            onMapCreated: (c) => _controllerCompleter.complete(c),
-          ),
-
-          if (latLng != null)
-            Positioned(
-              bottom: 100,
-              left: 16,
-              right: 16,
-              child: Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(color: Colors.black12, blurRadius: 8, offset: const Offset(0, 2))
-                  ],
+      body: ListenableBuilder(
+        listenable: _viewModel,
+        builder: (context, _) {
+          final latLng = _viewModel.marcado;
+          return Stack(
+            children: [
+              GoogleMap(
+                initialCameraPosition: CameraPosition(
+                  target: widget.posicaoInicial ?? _lagarto,
+                  zoom: 14,
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const AppText.pequeno('Posição selecionada:', color: AppColors.textMuted),
-                    const SizedBox(height: 4),
-                    AppText.corpo(
-                      'Lat: ${latLng.latitude.toStringAsFixed(6)}',
-                      color: AppColors.textPrimary,
+                markers: _viewModel.markers,
+                onTap: _onTap,
+                myLocationEnabled: true,
+                myLocationButtonEnabled: true,
+                mapToolbarEnabled: false,
+                zoomControlsEnabled: false,
+                onMapCreated: (c) => _controllerCompleter.complete(c),
+              ),
+
+              if (latLng != null)
+                Positioned(
+                  bottom: 100,
+                  left: 16,
+                  right: 16,
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(color: Colors.black12, blurRadius: 8, offset: const Offset(0, 2))
+                      ],
                     ),
-                    AppText.corpo(
-                      'Lng: ${latLng.longitude.toStringAsFixed(6)}',
-                      color: AppColors.textPrimary,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const AppText.pequeno('Posição selecionada:', color: AppColors.textMuted),
+                        const SizedBox(height: 4),
+                        AppText.corpo(
+                          'Lat: ${latLng.latitude.toStringAsFixed(6)}',
+                          color: AppColors.textPrimary,
+                        ),
+                        AppText.corpo(
+                          'Lng: ${latLng.longitude.toStringAsFixed(6)}',
+                          color: AppColors.textPrimary,
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
+                ),
+
+              Positioned(
+                bottom: 24,
+                left: 16,
+                right: 16,
+                child: ElevatedButton.icon(
+                  onPressed: latLng != null ? _confirmar : null,
+                  icon: const Icon(Icons.check_circle_outline_rounded, size: 20),
+                  label: const AppText(
+                    'Confirmar localização',
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textOnAccent,
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.accent,
+                    foregroundColor: AppColors.textOnAccent,
+                    disabledBackgroundColor: AppColors.accent.withValues(alpha: 0.4),
+                    minimumSize: const Size.fromHeight(50),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    elevation: 0,
+                  ),
                 ),
               ),
-            ),
-
-          Positioned(
-            bottom: 24,
-            left: 16,
-            right: 16,
-            child: ElevatedButton.icon(
-              onPressed: latLng != null ? _confirmar : null,
-              icon: const Icon(Icons.check_circle_outline_rounded, size: 20),
-              label: const AppText(
-                'Confirmar localização',
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textOnAccent,
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.accent,
-                foregroundColor: AppColors.textOnAccent,
-                disabledBackgroundColor: AppColors.accent.withOpacity(0.4),
-                minimumSize: const Size.fromHeight(50),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                elevation: 0,
-              ),
-            ),
-          ),
-        ],
+            ],
+          );
+        }
       ),
     );
   }

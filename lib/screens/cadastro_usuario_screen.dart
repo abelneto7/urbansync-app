@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import '../models/user.dart';
+
 import '../services/user_service.dart';
 import '../utils/app_colors.dart';
+import '../utils/snackbar_utils.dart';
 import '../widgets/app_text.dart';
 import '../widgets/custom_text_field.dart';
+import '../viewmodels/cadastro_usuario_viewmodel.dart';
 
 class CadastroUsuarioScreen extends StatefulWidget {
   final String token;
@@ -20,12 +22,16 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
   final _emailController = TextEditingController();
   final _senhaController = TextEditingController();
   final _confirmaSenhaController = TextEditingController();
-  final _userService = UserService();
+  late final CadastroUsuarioViewModel _viewModel;
 
-  bool _isLoading = false;
   bool _obscureSenha = true;
   bool _obscureConfirma = true;
-  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _viewModel = CadastroUsuarioViewModel(UserService());
+  }
 
   @override
   void dispose() {
@@ -33,46 +39,26 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
     _emailController.dispose();
     _senhaController.dispose();
     _confirmaSenhaController.dispose();
+    _viewModel.dispose();
     super.dispose();
   }
 
   Future<void> _salvar() async {
     if (!_formKey.currentState!.validate()) return;
 
-    if (_senhaController.text != _confirmaSenhaController.text) {
-      setState(() {
-        _errorMessage = 'As senhas não coincidem.';
-      });
-      return;
-    }
+    final result = await _viewModel.cadastrar(
+      token: widget.token,
+      nome: _nomeController.text.trim(),
+      email: _emailController.text.trim(),
+      password: _senhaController.text,
+      passwordConfirmation: _confirmaSenhaController.text,
+    );
 
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+    if (!mounted) return;
 
-    try {
-      final response = await _userService.cadastrar(
-        token: widget.token,
-        nome: _nomeController.text.trim(),
-        email: _emailController.text.trim(),
-        password: _senhaController.text,
-      );
-
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: AppText.corpo(response.message, color: AppColors.textOnAccent),
-          backgroundColor: AppColors.success,
-        ),
-      );
-      Navigator.of(context).pop(response.data);
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString().replaceFirst('Exception: ', '');
-      });
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+    if (result != null) {
+      SnackbarUtils.showSuccess(context, _viewModel.successMessage!);
+      Navigator.of(context).pop(result);
     }
   }
 
@@ -86,10 +72,15 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
-          child: Column(
-            children: [
-              _buildFormCard(),
-            ],
+          child: ListenableBuilder(
+            listenable: _viewModel,
+            builder: (context, _) {
+              return Column(
+                children: [
+                  _buildFormCard(),
+                ],
+              );
+            }
           ),
         ),
       ),
@@ -177,13 +168,13 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
               },
             ),
             const SizedBox(height: 24),
-            if (_errorMessage != null) ...[
+            if (_viewModel.errorMessage != null) ...[
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 decoration: BoxDecoration(
-                  color: AppColors.error.withOpacity(0.12),
+                  color: AppColors.error.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.error.withOpacity(0.4)),
+                  border: Border.all(color: AppColors.error.withValues(alpha: 0.4)),
                 ),
                 child: Row(
                   children: [
@@ -191,7 +182,7 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: AppText.pequeno(
-                        _errorMessage!,
+                        _viewModel.errorMessage!,
                         color: AppColors.error,
                       ),
                     ),
@@ -203,8 +194,8 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
             SizedBox(
               height: 50,
               child: ElevatedButton.icon(
-                onPressed: _isLoading ? null : _salvar,
-                icon: _isLoading
+                onPressed: _viewModel.isLoading ? null : _salvar,
+                icon: _viewModel.isLoading
                     ? const SizedBox(
                         width: 20,
                         height: 20,
@@ -212,7 +203,7 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
                       )
                     : const Icon(Icons.save_rounded, size: 20),
                 label: AppText(
-                  _isLoading ? 'Cadastrando...' : 'Salvar Usuário',
+                  _viewModel.isLoading ? 'Cadastrando...' : 'Salvar Usuário',
                   color: AppColors.textOnAccent,
                   fontWeight: FontWeight.bold,
                 ),

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 import '../services/interdicao_service.dart';
 import '../utils/app_colors.dart';
+import '../utils/snackbar_utils.dart';
 import '../widgets/app_text.dart';
 import '../widgets/custom_text_field.dart';
+import '../viewmodels/cadastro_viewmodel.dart';
 import 'seletor_coordenada_screen.dart';
 
 class CadastroScreen extends StatefulWidget {
@@ -22,13 +24,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
   final _latitudeController = TextEditingController();
   final _longitudeController = TextEditingController();
 
-  final _interdicaoService = InterdicaoService();
-
-  int _tipoSelecionado = 1;
-  bool _statusAtivo = true;
-  bool _isLoading = false;
-  String? _errorMessage;
-  LatLng? _posicaoSelecionada;
+  late final CadastroViewModel _viewModel;
 
   static const List<Map<String, dynamic>> _tipos = [
     {'valor': 1, 'label': 'Obra', 'icon': Icons.construction_rounded},
@@ -37,51 +33,39 @@ class _CadastroScreenState extends State<CadastroScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _viewModel = CadastroViewModel(InterdicaoService());
+  }
+
+  @override
   void dispose() {
     _tituloController.dispose();
     _descricaoController.dispose();
     _latitudeController.dispose();
     _longitudeController.dispose();
+    _viewModel.dispose();
     super.dispose();
   }
 
   Future<void> _handleCadastro() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+    final result = await _viewModel.cadastrar(
+      token: widget.token,
+      titulo: _tituloController.text.trim(),
+      descricao: _descricaoController.text.trim().isEmpty
+          ? null
+          : _descricaoController.text.trim(),
+      latitude: double.parse(_latitudeController.text.trim()),
+      longitude: double.parse(_longitudeController.text.trim()),
+    );
 
-    try {
-      final response = await _interdicaoService.cadastrar(
-        token: widget.token,
-        titulo: _tituloController.text.trim(),
-        descricao: _descricaoController.text.trim().isEmpty
-            ? null
-            : _descricaoController.text.trim(),
-        latitude: double.parse(_latitudeController.text.trim()),
-        longitude: double.parse(_longitudeController.text.trim()),
-        tipo: _tipoSelecionado,
-        status: _statusAtivo,
-      );
+    if (!mounted) return;
 
-      if (!mounted) return;
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: AppText.corpo(response.message, color: AppColors.textOnAccent),
-          backgroundColor: AppColors.success,
-        ),
-      );
-
-      Navigator.of(context).pop(response.data);
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString().replaceFirst('Exception: ', '');
-      });
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+    if (result != null) {
+      SnackbarUtils.showSuccess(context, _viewModel.successMessage!);
+      Navigator.of(context).pop(result);
     }
   }
 
@@ -105,11 +89,14 @@ class _CadastroScreenState extends State<CadastroScreen> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+        child: ListenableBuilder(
+          listenable: _viewModel,
+          builder: (context, _) {
+            return Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
               _buildSectionLabel('Informações básicas'),
               const SizedBox(height: 12),
 
@@ -180,15 +167,15 @@ class _CadastroScreenState extends State<CadastroScreen> {
               _buildStatusToggle(),
               const SizedBox(height: 28),
 
-              if (_errorMessage != null) ...[
+              if (_viewModel.errorMessage != null) ...[
                 Container(
                   padding: const EdgeInsets.symmetric(
                       horizontal: 12, vertical: 10),
                   decoration: BoxDecoration(
-                    color: AppColors.error.withOpacity(0.12),
+                    color: AppColors.error.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                        color: AppColors.error.withOpacity(0.4)),
+                        color: AppColors.error.withValues(alpha: 0.4)),
                   ),
                   child: Row(
                     children: [
@@ -197,7 +184,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: AppText.pequeno(
-                          _errorMessage!,
+                          _viewModel.errorMessage!,
                           color: AppColors.error,
                         ),
                       ),
@@ -210,8 +197,8 @@ class _CadastroScreenState extends State<CadastroScreen> {
               SizedBox(
                 height: 50,
                 child: ElevatedButton.icon(
-                  onPressed: _isLoading ? null : _handleCadastro,
-                  icon: _isLoading
+                  onPressed: _viewModel.isLoading ? null : _handleCadastro,
+                  icon: _viewModel.isLoading
                       ? const SizedBox(
                           width: 18,
                           height: 18,
@@ -224,7 +211,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
                       : const Icon(Icons.check_circle_outline_rounded,
                           size: 20),
                   label: AppText(
-                    _isLoading ? 'Cadastrando...' : 'Cadastrar Interdição',
+                    _viewModel.isLoading ? 'Cadastrando...' : 'Cadastrar Interdição',
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textOnAccent,
@@ -233,7 +220,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
                     backgroundColor: AppColors.accent,
                     foregroundColor: AppColors.textOnAccent,
                     disabledBackgroundColor:
-                        AppColors.accent.withOpacity(0.5),
+                        AppColors.accent.withValues(alpha: 0.5),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -244,7 +231,9 @@ class _CadastroScreenState extends State<CadastroScreen> {
               const SizedBox(height: 20),
             ],
           ),
-        ),
+        );
+        }
+      ),
       ),
     );
   }
@@ -269,19 +258,17 @@ class _CadastroScreenState extends State<CadastroScreen> {
   Future<void> _abrirSeletorMapa() async {
     final resultado = await selecionarCoordenadaNoMapa(
       context,
-      posicaoInicial: _posicaoSelecionada,
+      posicaoInicial: _viewModel.posicaoSelecionada,
     );
     if (resultado != null) {
-      setState(() {
-        _posicaoSelecionada = resultado;
-        _latitudeController.text = resultado.latitude.toStringAsFixed(6);
-        _longitudeController.text = resultado.longitude.toStringAsFixed(6);
-      });
+      _viewModel.setPosicaoSelecionada(resultado);
+      _latitudeController.text = resultado.latitude.toStringAsFixed(6);
+      _longitudeController.text = resultado.longitude.toStringAsFixed(6);
     }
   }
 
   Widget _buildSeletorCoordenada() {
-    final pos = _posicaoSelecionada;
+    final pos = _viewModel.posicaoSelecionada;
     return GestureDetector(
       onTap: _abrirSeletorMapa,
       child: AnimatedContainer(
@@ -289,7 +276,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: pos != null
-              ? AppColors.accent.withOpacity(0.08)
+              ? AppColors.accent.withValues(alpha: 0.08)
               : AppColors.surfaceCard,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
@@ -303,7 +290,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: (pos != null ? AppColors.accent : AppColors.textMuted)
-                    .withOpacity(0.12),
+                    .withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -361,7 +348,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
   Widget _buildTipoSelector() {
     return Row(
       children: _tipos.map((tipo) {
-        final isSelected = _tipoSelecionado == tipo['valor'] as int;
+        final isSelected = _viewModel.tipoSelecionado == tipo['valor'] as int;
         Color color;
         switch (tipo['valor'] as int) {
           case 1:
@@ -375,14 +362,14 @@ class _CadastroScreenState extends State<CadastroScreen> {
         }
         return Expanded(
           child: GestureDetector(
-            onTap: () => setState(() => _tipoSelecionado = tipo['valor'] as int),
+            onTap: () => _viewModel.setTipoSelecionado(tipo['valor'] as int),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               margin: const EdgeInsets.only(right: 8),
               padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? color.withOpacity(0.18)
+                    ? color.withValues(alpha: 0.18)
                     : AppColors.surfaceCard,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
@@ -422,25 +409,25 @@ class _CadastroScreenState extends State<CadastroScreen> {
       child: Row(
         children: [
           Icon(
-            _statusAtivo
+            _viewModel.statusAtivo
                 ? Icons.radio_button_checked_rounded
                 : Icons.radio_button_unchecked_rounded,
             color:
-                _statusAtivo ? AppColors.success : AppColors.textMuted,
+                _viewModel.statusAtivo ? AppColors.success : AppColors.textMuted,
             size: 18,
           ),
           const SizedBox(width: 10),
           Expanded(
             child: AppText.corpo(
-              _statusAtivo ? 'Interdição Ativa' : 'Interdição Encerrada',
+              _viewModel.statusAtivo ? 'Interdição Ativa' : 'Interdição Encerrada',
               color:
-                  _statusAtivo ? AppColors.textPrimary : AppColors.textMuted,
+                  _viewModel.statusAtivo ? AppColors.textPrimary : AppColors.textMuted,
             ),
           ),
           Switch(
-            value: _statusAtivo,
-            onChanged: (v) => setState(() => _statusAtivo = v),
-            activeColor: AppColors.success,
+            value: _viewModel.statusAtivo,
+            onChanged: (v) => _viewModel.setStatusAtivo(v),
+            activeTrackColor: AppColors.success,
             inactiveThumbColor: AppColors.textMuted,
             inactiveTrackColor: AppColors.divider,
           ),

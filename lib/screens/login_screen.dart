@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
-import '../models/user.dart';
+
 import '../utils/app_colors.dart';
+import '../utils/snackbar_utils.dart';
 import '../widgets/app_text.dart';
 import '../widgets/custom_text_field.dart';
+import '../viewmodels/login_viewmodel.dart';
 import 'base_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -18,11 +20,9 @@ class _LoginScreenState extends State<LoginScreen>
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _authService = AuthService();
+  late final LoginViewModel _viewModel;
 
-  bool _isLoading = false;
   bool _obscurePassword = true;
-  String? _errorMessage;
 
   late final AnimationController _animController;
   late final Animation<double> _fadeAnim;
@@ -31,6 +31,7 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   void initState() {
     super.initState();
+    _viewModel = LoginViewModel(AuthService());
     _animController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 900),
@@ -51,52 +52,32 @@ class _LoginScreenState extends State<LoginScreen>
     _animController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _viewModel.dispose();
     super.dispose();
   }
 
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+    final success = await _viewModel.login(
+      _emailController.text.trim(),
+      _passwordController.text,
+    );
 
-    try {
-      final result = await _authService.login(
-        _emailController.text.trim(),
-        _passwordController.text,
-      );
+    if (!mounted) return;
 
-      final token = result['access_token'] as String;
-      final usuario = result['usuario'] as User;
-      final message = result['message'] as String;
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: AppText.corpo(message, color: AppColors.textOnAccent),
-          backgroundColor: AppColors.success,
-          duration: const Duration(seconds: 2),
-        ),
-      );
+    if (success) {
+      SnackbarUtils.showSuccess(context, _viewModel.successMessage!);
 
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
-          pageBuilder: (_, __, ___) =>
-              BaseScreen(token: token, usuario: usuario),
-          transitionsBuilder: (_, anim, __, child) =>
+          pageBuilder: (context, a1, a2) =>
+              BaseScreen(token: _viewModel.token!, usuario: _viewModel.usuario!),
+          transitionsBuilder: (context, anim, a2, child) =>
               FadeTransition(opacity: anim, child: child),
           transitionDuration: const Duration(milliseconds: 500),
         ),
       );
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString().replaceFirst('Exception: ', '');
-      });
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -144,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen>
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: AppColors.accent.withOpacity(0.35),
+                color: AppColors.accent.withValues(alpha: 0.35),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               ),
@@ -233,65 +214,75 @@ class _LoginScreenState extends State<LoginScreen>
             ),
             const SizedBox(height: 20),
 
-            if (_errorMessage != null) ...[
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                decoration: BoxDecoration(
-                  color: AppColors.error.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(10),
-                  border:
-                      Border.all(color: AppColors.error.withOpacity(0.4)),
-                ),
-                child: Row(
+            ListenableBuilder(
+              listenable: _viewModel,
+              builder: (context, _) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Icon(Icons.error_outline,
-                        color: AppColors.error, size: 16),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: AppText.pequeno(
-                        _errorMessage!,
-                        color: AppColors.error,
+                    if (_viewModel.errorMessage != null) ...[
+                      Container(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: AppColors.error.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(10),
+                          border:
+                              Border.all(color: AppColors.error.withValues(alpha: 0.4)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.error_outline,
+                                color: AppColors.error, size: 16),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: AppText.pequeno(
+                                _viewModel.errorMessage!,
+                                color: AppColors.error,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: _viewModel.isLoading ? null : _handleLogin,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.accent,
+                          foregroundColor: AppColors.textOnAccent,
+                          disabledBackgroundColor:
+                              AppColors.accent.withValues(alpha: 0.5),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: _viewModel.isLoading
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.5,
+                                  valueColor: AlwaysStoppedAnimation(
+                                      AppColors.textOnAccent),
+                                ),
+                              )
+                            : const AppText(
+                                'Entrar',
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textOnAccent,
+                              ),
                       ),
                     ),
                   ],
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
-
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              height: 50,
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _handleLogin,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.accent,
-                  foregroundColor: AppColors.textOnAccent,
-                  disabledBackgroundColor:
-                      AppColors.accent.withOpacity(0.5),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 0,
-                ),
-                child: _isLoading
-                    ? const SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.5,
-                          valueColor: AlwaysStoppedAnimation(
-                              AppColors.textOnAccent),
-                        ),
-                      )
-                    : const AppText(
-                        'Entrar',
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textOnAccent,
-                      ),
-              ),
+                );
+              }
             ),
           ],
         ),

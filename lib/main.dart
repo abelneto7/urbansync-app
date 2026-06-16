@@ -111,7 +111,7 @@ class UrbanSyncApp extends StatelessWidget {
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return AppColors.success.withOpacity(0.3);
+            return AppColors.success.withValues(alpha: 0.3);
           }
           return AppColors.divider;
         }),

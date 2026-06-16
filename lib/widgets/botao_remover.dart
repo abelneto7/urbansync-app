@@ -25,7 +25,7 @@ class BotaoRemover extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
-            color: AppColors.error.withOpacity(0.12),
+            color: AppColors.error.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Icon(

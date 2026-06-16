@@ -48,7 +48,7 @@ class InterdicaoCard extends StatelessWidget {
         color: AppColors.surfaceCard,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: _tipoColor.withOpacity(0.25),
+          color: _tipoColor.withValues(alpha: 0.25),
           width: 1,
         ),
         boxShadow: [
@@ -68,7 +68,7 @@ class InterdicaoCard extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: _tipoColor.withOpacity(0.15),
+                color: _tipoColor.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
@@ -151,9 +151,9 @@ class _TipoBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.5), width: 0.8),
+        border: Border.all(color: color.withValues(alpha: 0.5), width: 0.8),
       ),
       child: AppText.pequeno(label, color: color),
     );
