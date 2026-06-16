@@ -6,6 +6,7 @@ import '../widgets/app_text.dart';
 import 'home_screen.dart';
 import 'interdicoes_screen.dart';
 import 'login_screen.dart';
+import 'mapa_screen.dart';
 import 'usuarios_screen.dart';
 
 class BaseScreen extends StatefulWidget {
@@ -29,6 +30,7 @@ class _BaseScreenState extends State<BaseScreen> {
     super.initState();
     _screens = [
       HomeScreen(token: widget.token, usuario: widget.usuario),
+      MapaScreen(token: widget.token),
       InterdicoesScreen(token: widget.token),
       UsuariosScreen(token: widget.token),
     ];
@@ -105,22 +107,31 @@ class _BaseScreenState extends State<BaseScreen> {
               onTap: () => _onItemTapped(0),
             ),
             ListTile(
-              leading: Icon(Icons.list_alt_rounded, 
+              leading: Icon(Icons.map_rounded, 
                   color: _currentIndex == 1 ? AppColors.accent : AppColors.textMuted),
-              title: AppText('Interdições', 
+              title: AppText('Mapa', 
                   color: _currentIndex == 1 ? AppColors.accent : AppColors.textPrimary,
                   fontWeight: _currentIndex == 1 ? FontWeight.bold : FontWeight.normal),
               selected: _currentIndex == 1,
               onTap: () => _onItemTapped(1),
             ),
             ListTile(
-              leading: Icon(Icons.people_alt_rounded, 
+              leading: Icon(Icons.list_alt_rounded, 
                   color: _currentIndex == 2 ? AppColors.accent : AppColors.textMuted),
-              title: AppText('Usuários', 
+              title: AppText('Interdições', 
                   color: _currentIndex == 2 ? AppColors.accent : AppColors.textPrimary,
                   fontWeight: _currentIndex == 2 ? FontWeight.bold : FontWeight.normal),
               selected: _currentIndex == 2,
               onTap: () => _onItemTapped(2),
+            ),
+            ListTile(
+              leading: Icon(Icons.people_alt_rounded, 
+                  color: _currentIndex == 3 ? AppColors.accent : AppColors.textMuted),
+              title: AppText('Usuários', 
+                  color: _currentIndex == 3 ? AppColors.accent : AppColors.textPrimary,
+                  fontWeight: _currentIndex == 3 ? FontWeight.bold : FontWeight.normal),
+              selected: _currentIndex == 3,
+              onTap: () => _onItemTapped(3),
             ),
           ],
         ),

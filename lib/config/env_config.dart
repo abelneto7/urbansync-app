@@ -8,4 +8,12 @@ class EnvConfig {
     }
     return url;
   }
+
+  static String get mapsApiKey {
+    final key = dotenv.env['GOOGLE_MAPS_API_KEY'];
+    if (key == null || key.trim().isEmpty) {
+      throw Exception('Variavel de ambiente GOOGLE_MAPS_API_KEY nao configurada ou nula.');
+    }
+    return key;
+  }
 }

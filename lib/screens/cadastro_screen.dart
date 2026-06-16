@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../services/interdicao_service.dart';
 import '../utils/app_colors.dart';
 import '../widgets/app_text.dart';
 import '../widgets/custom_text_field.dart';
+import 'seletor_coordenada_screen.dart';
 
 class CadastroScreen extends StatefulWidget {
   final String token;
@@ -26,6 +28,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
   bool _statusAtivo = true;
   bool _isLoading = false;
   String? _errorMessage;
+  LatLng? _posicaoSelecionada;
 
   static const List<Map<String, dynamic>> _tipos = [
     {'valor': 1, 'label': 'Obra', 'icon': Icons.construction_rounded},
@@ -138,52 +141,37 @@ class _CadastroScreenState extends State<CadastroScreen> {
 
               _buildSectionLabel('Localização (coordenadas)'),
               const SizedBox(height: 12),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: CustomTextField(
-                      controller: _latitudeController,
-                      label: 'Latitude *',
-                      icon: Icons.my_location_rounded,
-                      keyboardType: const TextInputType.numberWithOptions(
-                          signed: true, decimal: true),
-                      validator: (v) {
-                        if (v == null || v.trim().isEmpty) {
-                          return 'Obrigatório';
-                        }
-                        final val = double.tryParse(v.trim());
-                        if (val == null) return 'Número inválido';
-                        if (val < -90 || val > 90) return 'Entre -90 e 90';
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: CustomTextField(
-                      controller: _longitudeController,
-                      label: 'Longitude *',
-                      icon: Icons.explore_outlined,
-                      keyboardType: const TextInputType.numberWithOptions(
-                          signed: true, decimal: true),
-                      validator: (v) {
-                        if (v == null || v.trim().isEmpty) {
-                          return 'Obrigatório';
-                        }
-                        final val = double.tryParse(v.trim());
-                        if (val == null) return 'Número inválido';
-                        if (val < -180 || val > 180) return 'Entre -180 e 180';
-                        return null;
-                      },
-                    ),
-                  ),
-                ],
-              ),
+              _buildSeletorCoordenada(),
               const SizedBox(height: 8),
-              const AppText.pequeno(
-                'Ex: Lagarto/SE → Lat: -10.9167  Lng: -37.6500',
-                color: AppColors.textMuted,
+              Visibility(
+                visible: false,
+                maintainState: true,
+                child: Column(
+                  children: [
+                    CustomTextField(
+                      controller: _latitudeController,
+                      label: 'Latitude',
+                      icon: Icons.my_location_rounded,
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) return 'Selecione a localização no mapa';
+                        final val = double.tryParse(v.trim());
+                        if (val == null) return 'Número inválido';
+                        return null;
+                      },
+                    ),
+                    CustomTextField(
+                      controller: _longitudeController,
+                      label: 'Longitude',
+                      icon: Icons.explore_outlined,
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) return 'Selecione a localização no mapa';
+                        final val = double.tryParse(v.trim());
+                        if (val == null) return 'Número inválido';
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 20),
 
@@ -275,6 +263,98 @@ class _CadastroScreenState extends State<CadastroScreen> {
         const SizedBox(width: 8),
         AppText.subtitulo(label, color: AppColors.textSecondary),
       ],
+    );
+  }
+
+  Future<void> _abrirSeletorMapa() async {
+    final resultado = await selecionarCoordenadaNoMapa(
+      context,
+      posicaoInicial: _posicaoSelecionada,
+    );
+    if (resultado != null) {
+      setState(() {
+        _posicaoSelecionada = resultado;
+        _latitudeController.text = resultado.latitude.toStringAsFixed(6);
+        _longitudeController.text = resultado.longitude.toStringAsFixed(6);
+      });
+    }
+  }
+
+  Widget _buildSeletorCoordenada() {
+    final pos = _posicaoSelecionada;
+    return GestureDetector(
+      onTap: _abrirSeletorMapa,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: pos != null
+              ? AppColors.accent.withOpacity(0.08)
+              : AppColors.surfaceCard,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: pos != null ? AppColors.accent : AppColors.divider,
+            width: pos != null ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: (pos != null ? AppColors.accent : AppColors.textMuted)
+                    .withOpacity(0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                pos != null
+                    ? Icons.location_on_rounded
+                    : Icons.add_location_alt_outlined,
+                color: pos != null ? AppColors.accent : AppColors.textMuted,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: pos != null
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const AppText.pequeno(
+                          'Localização selecionada',
+                          color: AppColors.accent,
+                        ),
+                        AppText.corpo(
+                          'Lat: ${pos.latitude.toStringAsFixed(6)}',
+                          color: AppColors.textPrimary,
+                        ),
+                        AppText.corpo(
+                          'Lng: ${pos.longitude.toStringAsFixed(6)}',
+                          color: AppColors.textPrimary,
+                        ),
+                      ],
+                    )
+                  : const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AppText.corpo(
+                          'Selecionar no mapa',
+                          color: AppColors.textPrimary,
+                        ),
+                        AppText.pequeno(
+                          'Toque para abrir o mapa e marcar a posição',
+                          color: AppColors.textMuted,
+                        ),
+                      ],
+                    ),
+            ),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: pos != null ? AppColors.accent : AppColors.textMuted,
+            ),
+          ],
+        ),
+      ),
     );
   }
 
