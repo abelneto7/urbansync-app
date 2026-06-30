@@ -1,8 +1,6 @@
 import 'package:flutter/foundation.dart';
-import '../repositories/auth_repository.dart';
+import '../models/repositories/auth_repository.dart';
 
-/// Gerencia o estado da tela base (drawer, índice de navegação, logout).
-/// Consome APENAS AuthRepository — nunca fala diretamente com AuthService.
 class BaseViewModel extends ChangeNotifier {
   final AuthRepository _authRepository;
 

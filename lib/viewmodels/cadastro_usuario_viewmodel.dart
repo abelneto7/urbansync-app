@@ -1,9 +1,7 @@
 import 'package:flutter/foundation.dart';
-import '../models/user.dart';
-import '../repositories/user_repository.dart';
+import '../models/entities/user.dart';
+import '../models/repositories/user_repository.dart';
 
-/// Gerencia o estado do formulário de cadastro de usuário.
-/// Consome APENAS UserRepository — nunca fala diretamente com UserService.
 class CadastroUsuarioViewModel extends ChangeNotifier {
   final UserRepository _userRepository;
 

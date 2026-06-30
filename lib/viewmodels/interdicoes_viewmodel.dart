@@ -1,9 +1,7 @@
 import 'package:flutter/foundation.dart';
-import '../models/interdicao.dart';
-import '../repositories/interdicao_repository.dart';
+import '../models/entities/interdicao.dart';
+import '../models/repositories/interdicao_repository.dart';
 
-/// Gerencia o estado da lista de interdições (carregar, remover, adicionar localmente).
-/// Consome APENAS InterdicaoRepository — nunca fala diretamente com InterdicaoService.
 class InterdicoesViewModel extends ChangeNotifier {
   final InterdicaoRepository _interdicaoRepository;
 

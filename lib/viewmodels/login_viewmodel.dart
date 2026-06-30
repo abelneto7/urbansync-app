@@ -1,9 +1,7 @@
 import 'package:flutter/foundation.dart';
-import '../repositories/auth_repository.dart';
-import '../models/user.dart';
+import '../models/repositories/auth_repository.dart';
+import '../models/entities/user.dart';
 
-/// Gerencia o estado da tela de login.
-/// Consome APENAS AuthRepository — nunca fala diretamente com AuthService.
 class LoginViewModel extends ChangeNotifier {
   final AuthRepository _authRepository;
 

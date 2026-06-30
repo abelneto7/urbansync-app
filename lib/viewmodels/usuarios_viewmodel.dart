@@ -1,9 +1,7 @@
 import 'package:flutter/foundation.dart';
-import '../models/user.dart';
-import '../repositories/user_repository.dart';
+import '../models/entities/user.dart';
+import '../models/repositories/user_repository.dart';
 
-/// Gerencia o estado da lista de usuários (carregar, remover, adicionar localmente).
-/// Consome APENAS UserRepository — nunca fala diretamente com UserService.
 class UsuariosViewModel extends ChangeNotifier {
   final UserRepository _userRepository;
 

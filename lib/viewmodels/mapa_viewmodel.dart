@@ -1,12 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import '../models/interdicao.dart';
-import '../repositories/interdicao_repository.dart';
+import '../models/entities/interdicao.dart';
+import '../models/entities/tipo_interdicao.dart';
+import '../models/repositories/interdicao_repository.dart';
 
-/// Gerencia o estado do mapa (marcadores).
-/// Consome APENAS InterdicaoRepository — nunca fala diretamente com InterdicaoService.
-/// Nota: _buildMarker permanece aqui pois é transformação de dado de domínio
-/// em objeto de UI (Marker), responsabilidade legítima do ViewModel.
 class MapaViewModel extends ChangeNotifier {
   final InterdicaoRepository _interdicaoRepository;
 
@@ -39,18 +36,19 @@ class MapaViewModel extends ChangeNotifier {
 
   Marker _buildMarker(Interdicao i) {
     final BitmapDescriptor icon;
-    switch (i.tipo) {
-      case 1:
+    switch (i.tipoEnum) {
+      case TipoInterdicao.obra:
         icon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange);
         break;
-      case 2:
+      case TipoInterdicao.evento:
         icon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue);
         break;
-      case 3:
+      case TipoInterdicao.acidente:
         icon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed);
         break;
-      default:
+      case TipoInterdicao.desconhecido:
         icon = BitmapDescriptor.defaultMarker;
+        break;
     }
 
     return Marker(
