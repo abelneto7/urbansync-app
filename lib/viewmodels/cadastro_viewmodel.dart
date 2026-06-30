@@ -1,12 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../models/interdicao.dart';
-import '../services/interdicao_service.dart';
+import '../repositories/interdicao_repository.dart';
 
+/// Gerencia o estado do formulário de cadastro de interdição.
+/// Consome APENAS InterdicaoRepository — nunca fala diretamente com InterdicaoService.
 class CadastroViewModel extends ChangeNotifier {
-  final InterdicaoService _interdicaoService;
+  final InterdicaoRepository _interdicaoRepository;
 
-  CadastroViewModel(this._interdicaoService);
+  CadastroViewModel(this._interdicaoRepository);
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -54,7 +56,7 @@ class CadastroViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await _interdicaoService.cadastrar(
+      final response = await _interdicaoRepository.cadastrar(
         token: token,
         titulo: titulo,
         descricao: descricao,

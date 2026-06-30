@@ -1,12 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../models/interdicao.dart';
-import '../services/interdicao_service.dart';
+import '../repositories/interdicao_repository.dart';
 
+/// Gerencia o estado do mapa (marcadores).
+/// Consome APENAS InterdicaoRepository — nunca fala diretamente com InterdicaoService.
+/// Nota: _buildMarker permanece aqui pois é transformação de dado de domínio
+/// em objeto de UI (Marker), responsabilidade legítima do ViewModel.
 class MapaViewModel extends ChangeNotifier {
-  final InterdicaoService _interdicaoService;
+  final InterdicaoRepository _interdicaoRepository;
 
-  MapaViewModel(this._interdicaoService);
+  MapaViewModel(this._interdicaoRepository);
 
   bool _isLoading = true;
   bool get isLoading => _isLoading;
@@ -23,7 +27,7 @@ class MapaViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final lista = await _interdicaoService.listar(token);
+      final lista = await _interdicaoRepository.listar(token);
       _markers = lista.map((i) => _buildMarker(i)).toSet();
     } catch (e) {
       _errorMessage = e.toString().replaceFirst('Exception: ', '');

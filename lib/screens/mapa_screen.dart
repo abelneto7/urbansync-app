@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-
-import '../services/interdicao_service.dart';
 import '../utils/app_colors.dart';
 import '../utils/snackbar_utils.dart';
 import '../widgets/app_text.dart';
@@ -15,8 +13,13 @@ const _lagarto = LatLng(-10.9167, -37.6500);
 
 class MapaScreen extends StatefulWidget {
   final String token;
+  final MapaViewModel viewModel;
 
-  const MapaScreen({super.key, required this.token});
+  const MapaScreen({
+    super.key,
+    required this.token,
+    required this.viewModel,
+  });
 
   @override
   State<MapaScreen> createState() => _MapaScreenState();
@@ -24,19 +27,13 @@ class MapaScreen extends StatefulWidget {
 
 class _MapaScreenState extends State<MapaScreen> {
   final Completer<GoogleMapController> _controllerCompleter = Completer();
-  late final MapaViewModel _viewModel;
+
+  MapaViewModel get _viewModel => widget.viewModel;
 
   @override
   void initState() {
     super.initState();
-    _viewModel = MapaViewModel(InterdicaoService());
     _carregarMarcadores();
-  }
-
-  @override
-  void dispose() {
-    _viewModel.dispose();
-    super.dispose();
   }
 
   Future<void> _carregarMarcadores() async {
@@ -61,7 +58,9 @@ class _MapaScreenState extends State<MapaScreen> {
       }
 
       if (permission == LocationPermission.deniedForever) {
-        _mostrarSnack('Permissão negada permanentemente. Habilite nas configurações.', isErro: true);
+        _mostrarSnack(
+            'Permissão negada permanentemente. Habilite nas configurações.',
+            isErro: true);
         return;
       }
 
@@ -103,7 +102,8 @@ class _MapaScreenState extends State<MapaScreen> {
               myLocationButtonEnabled: false,
               mapToolbarEnabled: false,
               zoomControlsEnabled: false,
-              onMapCreated: (controller) => _controllerCompleter.complete(controller),
+              onMapCreated: (controller) =>
+                  _controllerCompleter.complete(controller),
             ),
 
             Positioned(
@@ -129,15 +129,21 @@ class _MapaScreenState extends State<MapaScreen> {
                   borderRadius: BorderRadius.circular(12),
                   color: AppColors.error.withValues(alpha: 0.9),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                     child: Row(
                       children: [
-                        const Icon(Icons.wifi_off_rounded, color: Colors.white, size: 18),
+                        const Icon(Icons.wifi_off_rounded,
+                            color: Colors.white, size: 18),
                         const SizedBox(width: 10),
-                        Expanded(child: AppText.pequeno(_viewModel.errorMessage!, color: Colors.white)),
+                        Expanded(
+                            child: AppText.pequeno(
+                                _viewModel.errorMessage!,
+                                color: Colors.white)),
                         TextButton(
                           onPressed: _carregarMarcadores,
-                          child: const AppText.pequeno('Tentar', color: Colors.white),
+                          child: const AppText.pequeno('Tentar',
+                              color: Colors.white),
                         ),
                       ],
                     ),
@@ -155,21 +161,23 @@ class _MapaScreenState extends State<MapaScreen> {
                     heroTag: 'fab_recarregar_mapa',
                     onPressed: _carregarMarcadores,
                     backgroundColor: AppColors.surface,
-                    child: const Icon(Icons.refresh_rounded, color: AppColors.accent),
+                    child: const Icon(Icons.refresh_rounded,
+                        color: AppColors.accent),
                   ),
                   const SizedBox(height: 10),
                   FloatingActionButton(
                     heroTag: 'fab_minha_localizacao',
                     onPressed: _irParaLocalizacaoAtual,
                     backgroundColor: AppColors.accent,
-                    child: const Icon(Icons.my_location_rounded, color: Colors.white),
+                    child: const Icon(Icons.my_location_rounded,
+                        color: Colors.white),
                   ),
                 ],
               ),
             ),
           ],
         );
-      }
+      },
     );
   }
 
@@ -179,7 +187,9 @@ class _MapaScreenState extends State<MapaScreen> {
       decoration: BoxDecoration(
         color: AppColors.surface.withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 8)],
+        boxShadow: const [
+          BoxShadow(color: Colors.black12, blurRadius: 8),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

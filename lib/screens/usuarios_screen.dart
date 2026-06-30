@@ -1,40 +1,38 @@
 import 'package:flutter/material.dart';
 import '../models/user.dart';
-import '../services/user_service.dart';
 import '../utils/app_colors.dart';
 import '../utils/snackbar_utils.dart';
 import '../widgets/app_text.dart';
 import '../widgets/botao_remover.dart';
 import '../viewmodels/usuarios_viewmodel.dart';
+import '../viewmodels/cadastro_usuario_viewmodel.dart';
+import '../repositories/user_repository.dart';
+import '../services/user_service.dart';
 import 'cadastro_usuario_screen.dart';
 
 class UsuariosScreen extends StatefulWidget {
   final String token;
+  final UsuariosViewModel viewModel;
 
-  const UsuariosScreen({super.key, required this.token});
+  const UsuariosScreen({
+    super.key,
+    required this.token,
+    required this.viewModel,
+  });
 
   @override
   State<UsuariosScreen> createState() => _UsuariosScreenState();
 }
 
 class _UsuariosScreenState extends State<UsuariosScreen> {
-  late final UsuariosViewModel _viewModel;
-
   @override
   void initState() {
     super.initState();
-    _viewModel = UsuariosViewModel(UserService());
     _carregarUsuarios();
   }
 
-  @override
-  void dispose() {
-    _viewModel.dispose();
-    super.dispose();
-  }
-
   Future<void> _carregarUsuarios() async {
-    await _viewModel.carregarUsuarios(widget.token);
+    await widget.viewModel.carregarUsuarios(widget.token);
   }
 
   Future<void> _removerUsuario(User usuario) async {
@@ -60,7 +58,7 @@ class _UsuariosScreenState extends State<UsuariosScreen> {
     if (confirmar != true) return;
 
     try {
-      final message = await _viewModel.removerUsuario(widget.token, usuario);
+      final message = await widget.viewModel.removerUsuario(widget.token, usuario);
       if (mounted && message != null) {
         SnackbarUtils.showSuccess(context, message);
       }
@@ -72,14 +70,18 @@ class _UsuariosScreenState extends State<UsuariosScreen> {
   }
 
   Future<void> _irParaCadastro() async {
+    // Ponto de navegação: monta o ViewModel com o Repository correto.
     final novoUser = await Navigator.of(context).push<User>(
       MaterialPageRoute(
-        builder: (_) => CadastroUsuarioScreen(token: widget.token),
+        builder: (_) => CadastroUsuarioScreen(
+          token: widget.token,
+          viewModel: CadastroUsuarioViewModel(UserRepository(UserService())),
+        ),
       ),
     );
 
     if (novoUser != null) {
-      _viewModel.adicionarUsuarioLocal(novoUser);
+      widget.viewModel.adicionarUsuarioLocal(novoUser);
     }
   }
 
@@ -100,27 +102,30 @@ class _UsuariosScreenState extends State<UsuariosScreen> {
 
   Widget _buildBody() {
     return ListenableBuilder(
-      listenable: _viewModel,
+      listenable: widget.viewModel,
       builder: (context, _) {
-        if (_viewModel.isLoading) {
+        if (widget.viewModel.isLoading) {
           return const Center(child: CircularProgressIndicator(color: AppColors.accent));
         }
 
-        if (_viewModel.errorMessage != null) {
+        if (widget.viewModel.errorMessage != null) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.cloud_off_rounded, color: AppColors.textMuted, size: 48),
                 const SizedBox(height: 16),
-                AppText.corpo(_viewModel.errorMessage!),
-                ElevatedButton(onPressed: _carregarUsuarios, child: const Text('Tentar novamente'))
+                AppText.corpo(widget.viewModel.errorMessage!),
+                ElevatedButton(
+                  onPressed: _carregarUsuarios,
+                  child: const Text('Tentar novamente'),
+                ),
               ],
             ),
           );
         }
 
-        if (_viewModel.usuarios.isEmpty) {
+        if (widget.viewModel.usuarios.isEmpty) {
           return const Center(
             child: AppText.corpo('Nenhum usuário encontrado.', color: AppColors.textMuted),
           );
@@ -131,9 +136,9 @@ class _UsuariosScreenState extends State<UsuariosScreen> {
           color: AppColors.accent,
           child: ListView.builder(
             padding: const EdgeInsets.only(bottom: 80, top: 12),
-            itemCount: _viewModel.usuarios.length,
+            itemCount: widget.viewModel.usuarios.length,
             itemBuilder: (context, index) {
-              final usuario = _viewModel.usuarios[index];
+              final usuario = widget.viewModel.usuarios[index];
               return Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                 padding: const EdgeInsets.all(14),
@@ -146,7 +151,10 @@ class _UsuariosScreenState extends State<UsuariosScreen> {
                   children: [
                     CircleAvatar(
                       backgroundColor: AppColors.accent.withValues(alpha: 0.2),
-                      child: AppText.subtitulo(usuario.nome.substring(0, 1).toUpperCase(), color: AppColors.accent),
+                      child: AppText.subtitulo(
+                        usuario.nome.substring(0, 1).toUpperCase(),
+                        color: AppColors.accent,
+                      ),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -169,7 +177,7 @@ class _UsuariosScreenState extends State<UsuariosScreen> {
             },
           ),
         );
-      }
+      },
     );
   }
 }

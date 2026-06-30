@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models/user.dart';
-import '../services/interdicao_service.dart';
 import '../utils/app_colors.dart';
 import '../widgets/app_text.dart';
 import '../viewmodels/home_viewmodel.dart';
@@ -8,10 +7,12 @@ import '../viewmodels/home_viewmodel.dart';
 class HomeScreen extends StatefulWidget {
   final String token;
   final User? usuario;
+  final HomeViewModel viewModel;
 
   const HomeScreen({
     super.key,
     required this.token,
+    required this.viewModel,
     this.usuario,
   });
 
@@ -20,45 +21,37 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late final HomeViewModel _viewModel;
-
   @override
   void initState() {
     super.initState();
-    _viewModel = HomeViewModel(InterdicaoService());
-    _viewModel.carregarEstatisticas(widget.token);
-  }
-
-  @override
-  void dispose() {
-    _viewModel.dispose();
-    super.dispose();
+    widget.viewModel.carregarEstatisticas(widget.token);
   }
 
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: _viewModel,
+      listenable: widget.viewModel,
       builder: (context, _) {
-        if (_viewModel.isLoading) {
+        if (widget.viewModel.isLoading) {
           return const Center(
             child: CircularProgressIndicator(color: AppColors.accent),
           );
         }
 
-        if (_viewModel.errorMessage != null) {
+        if (widget.viewModel.errorMessage != null) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.error_outline, color: AppColors.error, size: 48),
                 const SizedBox(height: 16),
-                AppText.corpo(_viewModel.errorMessage!),
+                AppText.corpo(widget.viewModel.errorMessage!),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () => _viewModel.carregarEstatisticas(widget.token),
+                  onPressed: () =>
+                      widget.viewModel.carregarEstatisticas(widget.token),
                   child: const Text('Tentar Novamente'),
-                )
+                ),
               ],
             ),
           );
@@ -73,16 +66,15 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 8),
               const AppText.corpo('Estatísticas em tempo real do sistema UrbanSync.'),
               const SizedBox(height: 30),
-              
-              _buildInfoCard('Obras', _viewModel.obras, AppColors.tipoObra, Icons.construction_rounded),
+              _buildInfoCard('Obras', widget.viewModel.obras, AppColors.tipoObra, Icons.construction_rounded),
               const SizedBox(height: 16),
-              _buildInfoCard('Eventos', _viewModel.eventos, AppColors.tipoEvento, Icons.event_rounded),
+              _buildInfoCard('Eventos', widget.viewModel.eventos, AppColors.tipoEvento, Icons.event_rounded),
               const SizedBox(height: 16),
-              _buildInfoCard('Acidentes', _viewModel.acidentes, AppColors.tipoAcidente, Icons.car_crash_rounded),
+              _buildInfoCard('Acidentes', widget.viewModel.acidentes, AppColors.tipoAcidente, Icons.car_crash_rounded),
             ],
           ),
         );
-      }
+      },
     );
   }
 
@@ -113,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 AppText(value.toString(), fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
               ],
             ),
-          )
+          ),
         ],
       ),
     );

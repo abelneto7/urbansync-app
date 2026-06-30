@@ -1,27 +1,13 @@
-import '../models/interdicao.dart';
-import '../services/api_service.dart';
 import '../utils/http_client.dart';
 
+/// Responsabilidade ÚNICA: executar chamadas HTTP brutas para endpoints de interdição.
+/// Não faz nenhum mapeamento de dado para Model — isso é papel do InterdicaoRepository.
 class InterdicaoService {
-  Future<List<Interdicao>> listar(String token) async {
-    final body = await HttpClient.get('/interdicao', token: token);
-    final data = body['data'];
-
-    List<dynamic> lista;
-    if (data is Map && data.containsKey('data')) {
-      lista = data['data'] as List<dynamic>;
-    } else if (data is List) {
-      lista = data;
-    } else {
-      lista = [];
-    }
-
-    return lista
-        .map((e) => Interdicao.fromJson(e as Map<String, dynamic>))
-        .toList();
+  Future<Map<String, dynamic>> listar(String token) async {
+    return HttpClient.get('/interdicao', token: token);
   }
 
-  Future<ApiResponse<Interdicao>> cadastrar({
+  Future<Map<String, dynamic>> cadastrar({
     required String token,
     required String titulo,
     String? descricao,
@@ -40,17 +26,14 @@ class InterdicaoService {
     if (descricao != null && descricao.isNotEmpty) {
       payload['descricao'] = descricao;
     }
-
-    final body = await HttpClient.post('/interdicao', token: token, body: payload);
-
-    return ApiResponse<Interdicao>(
-      data: Interdicao.fromJson(body['data'] as Map<String, dynamic>),
-      message: body['message'] as String? ?? 'Interdição cadastrada com sucesso.',
-    );
+    return HttpClient.post('/interdicao', token: token, body: payload);
   }
 
-  Future<String> remover({required String token, required int id}) async {
-    final body = await HttpClient.delete('/interdicao/$id', token: token);
-    return body['message'] as String? ?? 'Interdição removida com sucesso.';
+  Future<Map<String, dynamic>> remover({
+    required String token,
+    required int id,
+  }) async {
+    return HttpClient.delete('/interdicao/$id', token: token);
   }
 }
+

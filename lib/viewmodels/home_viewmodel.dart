@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
-import '../services/interdicao_service.dart';
+import '../repositories/interdicao_repository.dart';
 
+/// Gerencia o estado do Dashboard (estatísticas por tipo).
+/// Consome APENAS InterdicaoRepository — nunca fala diretamente com InterdicaoService.
 class HomeViewModel extends ChangeNotifier {
-  final InterdicaoService _interdicaoService;
+  final InterdicaoRepository _interdicaoRepository;
 
-  HomeViewModel(this._interdicaoService);
+  HomeViewModel(this._interdicaoRepository);
 
   bool _isLoading = true;
   bool get isLoading => _isLoading;
@@ -27,7 +29,7 @@ class HomeViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final lista = await _interdicaoService.listar(token);
+      final lista = await _interdicaoRepository.listar(token);
       _obras = lista.where((i) => i.tipo == 1).length;
       _eventos = lista.where((i) => i.tipo == 2).length;
       _acidentes = lista.where((i) => i.tipo == 3).length;

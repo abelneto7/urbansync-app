@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
 
 import '../utils/app_colors.dart';
 import '../utils/snackbar_utils.dart';
@@ -7,9 +6,22 @@ import '../widgets/app_text.dart';
 import '../widgets/custom_text_field.dart';
 import '../viewmodels/login_viewmodel.dart';
 import 'base_screen.dart';
+import '../repositories/auth_repository.dart';
+import '../repositories/interdicao_repository.dart';
+import '../repositories/user_repository.dart';
+import '../services/auth_service.dart';
+import '../services/interdicao_service.dart';
+import '../services/user_service.dart';
+import '../viewmodels/base_viewmodel.dart';
+import '../viewmodels/home_viewmodel.dart';
+import '../viewmodels/mapa_viewmodel.dart';
+import '../viewmodels/interdicoes_viewmodel.dart';
+import '../viewmodels/usuarios_viewmodel.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final LoginViewModel viewModel;
+
+  const LoginScreen({super.key, required this.viewModel});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -20,7 +32,6 @@ class _LoginScreenState extends State<LoginScreen>
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  late final LoginViewModel _viewModel;
 
   bool _obscurePassword = true;
 
@@ -28,10 +39,11 @@ class _LoginScreenState extends State<LoginScreen>
   late final Animation<double> _fadeAnim;
   late final Animation<Offset> _slideAnim;
 
+  LoginViewModel get _viewModel => widget.viewModel;
+
   @override
   void initState() {
     super.initState();
-    _viewModel = LoginViewModel(AuthService());
     _animController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 900),
@@ -52,7 +64,6 @@ class _LoginScreenState extends State<LoginScreen>
     _animController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _viewModel.dispose();
     super.dispose();
   }
 
@@ -69,10 +80,22 @@ class _LoginScreenState extends State<LoginScreen>
     if (success) {
       SnackbarUtils.showSuccess(context, _viewModel.successMessage!);
 
+      // Composição do grafo de dependências para a BaseScreen
+      final authRepo = AuthRepository(AuthService());
+      final interdicaoRepo = InterdicaoRepository(InterdicaoService());
+      final userRepo = UserRepository(UserService());
+
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
-          pageBuilder: (context, a1, a2) =>
-              BaseScreen(token: _viewModel.token!, usuario: _viewModel.usuario!),
+          pageBuilder: (context, a1, a2) => BaseScreen(
+            token: _viewModel.token!,
+            usuario: _viewModel.usuario!,
+            viewModel: BaseViewModel(authRepo),
+            homeViewModel: HomeViewModel(interdicaoRepo),
+            mapaViewModel: MapaViewModel(interdicaoRepo),
+            interdicoesViewModel: InterdicoesViewModel(interdicaoRepo),
+            usuariosViewModel: UsuariosViewModel(userRepo),
+          ),
           transitionsBuilder: (context, anim, a2, child) =>
               FadeTransition(opacity: anim, child: child),
           transitionDuration: const Duration(milliseconds: 500),
@@ -98,7 +121,6 @@ class _LoginScreenState extends State<LoginScreen>
                   children: [
                     _buildLogo(),
                     const SizedBox(height: 48),
-
                     _buildFormCard(),
                   ],
                 ),
@@ -222,13 +244,13 @@ class _LoginScreenState extends State<LoginScreen>
                   children: [
                     if (_viewModel.errorMessage != null) ...[
                       Container(
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
                         decoration: BoxDecoration(
                           color: AppColors.error.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(10),
-                          border:
-                              Border.all(color: AppColors.error.withValues(alpha: 0.4)),
+                          border: Border.all(
+                              color: AppColors.error.withValues(alpha: 0.4)),
                         ),
                         child: Row(
                           children: [
@@ -282,7 +304,7 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                   ],
                 );
-              }
+              },
             ),
           ],
         ),
@@ -290,4 +312,3 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 }
-

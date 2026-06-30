@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-
-import '../services/interdicao_service.dart';
 import '../utils/app_colors.dart';
 import '../utils/snackbar_utils.dart';
 import '../widgets/app_text.dart';
@@ -10,8 +8,13 @@ import 'seletor_coordenada_screen.dart';
 
 class CadastroScreen extends StatefulWidget {
   final String token;
+  final CadastroViewModel viewModel;
 
-  const CadastroScreen({super.key, required this.token});
+  const CadastroScreen({
+    super.key,
+    required this.token,
+    required this.viewModel,
+  });
 
   @override
   State<CadastroScreen> createState() => _CadastroScreenState();
@@ -24,19 +27,13 @@ class _CadastroScreenState extends State<CadastroScreen> {
   final _latitudeController = TextEditingController();
   final _longitudeController = TextEditingController();
 
-  late final CadastroViewModel _viewModel;
-
   static const List<Map<String, dynamic>> _tipos = [
     {'valor': 1, 'label': 'Obra', 'icon': Icons.construction_rounded},
     {'valor': 2, 'label': 'Evento', 'icon': Icons.event_rounded},
     {'valor': 3, 'label': 'Acidente', 'icon': Icons.car_crash_rounded},
   ];
 
-  @override
-  void initState() {
-    super.initState();
-    _viewModel = CadastroViewModel(InterdicaoService());
-  }
+  CadastroViewModel get _viewModel => widget.viewModel;
 
   @override
   void dispose() {
@@ -44,7 +41,6 @@ class _CadastroScreenState extends State<CadastroScreen> {
     _descricaoController.dispose();
     _latitudeController.dispose();
     _longitudeController.dispose();
-    _viewModel.dispose();
     super.dispose();
   }
 
@@ -66,6 +62,18 @@ class _CadastroScreenState extends State<CadastroScreen> {
     if (result != null) {
       SnackbarUtils.showSuccess(context, _viewModel.successMessage!);
       Navigator.of(context).pop(result);
+    }
+  }
+
+  Future<void> _abrirSeletorMapa() async {
+    final resultado = await selecionarCoordenadaNoMapa(
+      context,
+      posicaoInicial: _viewModel.posicaoSelecionada,
+    );
+    if (resultado != null) {
+      _viewModel.setPosicaoSelecionada(resultado);
+      _latitudeController.text = resultado.latitude.toStringAsFixed(6);
+      _longitudeController.text = resultado.longitude.toStringAsFixed(6);
     }
   }
 
@@ -97,143 +105,146 @@ class _CadastroScreenState extends State<CadastroScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-              _buildSectionLabel('Informações básicas'),
-              const SizedBox(height: 12),
+                  _buildSectionLabel('Informações básicas'),
+                  const SizedBox(height: 12),
 
-              CustomTextField(
-                controller: _tituloController,
-                label: 'Título *',
-                icon: Icons.title_rounded,
-                maxLength: 100,
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) return 'Informe o título.';
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
-
-              CustomTextField(
-                controller: _descricaoController,
-                label: 'Descrição (opcional)',
-                icon: Icons.description_outlined,
-                maxLines: 3,
-                maxLength: 500,
-              ),
-              const SizedBox(height: 20),
-
-              _buildSectionLabel('Tipo de interdição'),
-              const SizedBox(height: 12),
-              _buildTipoSelector(),
-              const SizedBox(height: 20),
-
-              _buildSectionLabel('Localização (coordenadas)'),
-              const SizedBox(height: 12),
-              _buildSeletorCoordenada(),
-              const SizedBox(height: 8),
-              Visibility(
-                visible: false,
-                maintainState: true,
-                child: Column(
-                  children: [
-                    CustomTextField(
-                      controller: _latitudeController,
-                      label: 'Latitude',
-                      icon: Icons.my_location_rounded,
-                      validator: (v) {
-                        if (v == null || v.trim().isEmpty) return 'Selecione a localização no mapa';
-                        final val = double.tryParse(v.trim());
-                        if (val == null) return 'Número inválido';
-                        return null;
-                      },
-                    ),
-                    CustomTextField(
-                      controller: _longitudeController,
-                      label: 'Longitude',
-                      icon: Icons.explore_outlined,
-                      validator: (v) {
-                        if (v == null || v.trim().isEmpty) return 'Selecione a localização no mapa';
-                        final val = double.tryParse(v.trim());
-                        if (val == null) return 'Número inválido';
-                        return null;
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              _buildSectionLabel('Status'),
-              const SizedBox(height: 8),
-              _buildStatusToggle(),
-              const SizedBox(height: 28),
-
-              if (_viewModel.errorMessage != null) ...[
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: AppColors.error.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                        color: AppColors.error.withValues(alpha: 0.4)),
+                  CustomTextField(
+                    controller: _tituloController,
+                    label: 'Título *',
+                    icon: Icons.title_rounded,
+                    maxLength: 100,
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) return 'Informe o título.';
+                      return null;
+                    },
                   ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.error_outline,
-                          color: AppColors.error, size: 16),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: AppText.pequeno(
-                          _viewModel.errorMessage!,
-                          color: AppColors.error,
+                  const SizedBox(height: 12),
+
+                  CustomTextField(
+                    controller: _descricaoController,
+                    label: 'Descrição (opcional)',
+                    icon: Icons.description_outlined,
+                    maxLines: 3,
+                    maxLength: 500,
+                  ),
+                  const SizedBox(height: 20),
+
+                  _buildSectionLabel('Tipo de interdição'),
+                  const SizedBox(height: 12),
+                  _buildTipoSelector(),
+                  const SizedBox(height: 20),
+
+                  _buildSectionLabel('Localização (coordenadas)'),
+                  const SizedBox(height: 12),
+                  _buildSeletorCoordenada(),
+                  const SizedBox(height: 8),
+                  Visibility(
+                    visible: false,
+                    maintainState: true,
+                    child: Column(
+                      children: [
+                        CustomTextField(
+                          controller: _latitudeController,
+                          label: 'Latitude',
+                          icon: Icons.my_location_rounded,
+                          validator: (v) {
+                            if (v == null || v.trim().isEmpty) {
+                              return 'Selecione a localização no mapa';
+                            }
+                            final val = double.tryParse(v.trim());
+                            if (val == null) return 'Número inválido';
+                            return null;
+                          },
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ],
-
-              SizedBox(
-                height: 50,
-                child: ElevatedButton.icon(
-                  onPressed: _viewModel.isLoading ? null : _handleCadastro,
-                  icon: _viewModel.isLoading
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation(
-                                AppColors.textOnAccent),
-                          ),
-                        )
-                      : const Icon(Icons.check_circle_outline_rounded,
-                          size: 20),
-                  label: AppText(
-                    _viewModel.isLoading ? 'Cadastrando...' : 'Cadastrar Interdição',
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textOnAccent,
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.accent,
-                    foregroundColor: AppColors.textOnAccent,
-                    disabledBackgroundColor:
-                        AppColors.accent.withValues(alpha: 0.5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                        CustomTextField(
+                          controller: _longitudeController,
+                          label: 'Longitude',
+                          icon: Icons.explore_outlined,
+                          validator: (v) {
+                            if (v == null || v.trim().isEmpty) {
+                              return 'Selecione a localização no mapa';
+                            }
+                            final val = double.tryParse(v.trim());
+                            if (val == null) return 'Número inválido';
+                            return null;
+                          },
+                        ),
+                      ],
                     ),
-                    elevation: 0,
                   ),
-                ),
+                  const SizedBox(height: 20),
+
+                  _buildSectionLabel('Status'),
+                  const SizedBox(height: 8),
+                  _buildStatusToggle(),
+                  const SizedBox(height: 28),
+
+                  if (_viewModel.errorMessage != null) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: AppColors.error.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                            color: AppColors.error.withValues(alpha: 0.4)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.error_outline,
+                              color: AppColors.error, size: 16),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: AppText.pequeno(
+                              _viewModel.errorMessage!,
+                              color: AppColors.error,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+
+                  SizedBox(
+                    height: 50,
+                    child: ElevatedButton.icon(
+                      onPressed: _viewModel.isLoading ? null : _handleCadastro,
+                      icon: _viewModel.isLoading
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation(
+                                    AppColors.textOnAccent),
+                              ),
+                            )
+                          : const Icon(Icons.check_circle_outline_rounded, size: 20),
+                      label: AppText(
+                        _viewModel.isLoading ? 'Cadastrando...' : 'Cadastrar Interdição',
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textOnAccent,
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.accent,
+                        foregroundColor: AppColors.textOnAccent,
+                        disabledBackgroundColor:
+                            AppColors.accent.withValues(alpha: 0.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
               ),
-              const SizedBox(height: 20),
-            ],
-          ),
-        );
-        }
-      ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -253,18 +264,6 @@ class _CadastroScreenState extends State<CadastroScreen> {
         AppText.subtitulo(label, color: AppColors.textSecondary),
       ],
     );
-  }
-
-  Future<void> _abrirSeletorMapa() async {
-    final resultado = await selecionarCoordenadaNoMapa(
-      context,
-      posicaoInicial: _viewModel.posicaoSelecionada,
-    );
-    if (resultado != null) {
-      _viewModel.setPosicaoSelecionada(resultado);
-      _latitudeController.text = resultado.latitude.toStringAsFixed(6);
-      _longitudeController.text = resultado.longitude.toStringAsFixed(6);
-    }
   }
 
   Widget _buildSeletorCoordenada() {
@@ -412,16 +411,14 @@ class _CadastroScreenState extends State<CadastroScreen> {
             _viewModel.statusAtivo
                 ? Icons.radio_button_checked_rounded
                 : Icons.radio_button_unchecked_rounded,
-            color:
-                _viewModel.statusAtivo ? AppColors.success : AppColors.textMuted,
+            color: _viewModel.statusAtivo ? AppColors.success : AppColors.textMuted,
             size: 18,
           ),
           const SizedBox(width: 10),
           Expanded(
             child: AppText.corpo(
               _viewModel.statusAtivo ? 'Interdição Ativa' : 'Interdição Encerrada',
-              color:
-                  _viewModel.statusAtivo ? AppColors.textPrimary : AppColors.textMuted,
+              color: _viewModel.statusAtivo ? AppColors.textPrimary : AppColors.textMuted,
             ),
           ),
           Switch(

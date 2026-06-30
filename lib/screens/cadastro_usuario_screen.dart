@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../services/user_service.dart';
 import '../utils/app_colors.dart';
 import '../utils/snackbar_utils.dart';
 import '../widgets/app_text.dart';
@@ -9,8 +8,13 @@ import '../viewmodels/cadastro_usuario_viewmodel.dart';
 
 class CadastroUsuarioScreen extends StatefulWidget {
   final String token;
+  final CadastroUsuarioViewModel viewModel;
 
-  const CadastroUsuarioScreen({super.key, required this.token});
+  const CadastroUsuarioScreen({
+    super.key,
+    required this.token,
+    required this.viewModel,
+  });
 
   @override
   State<CadastroUsuarioScreen> createState() => _CadastroUsuarioScreenState();
@@ -22,16 +26,11 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
   final _emailController = TextEditingController();
   final _senhaController = TextEditingController();
   final _confirmaSenhaController = TextEditingController();
-  late final CadastroUsuarioViewModel _viewModel;
 
   bool _obscureSenha = true;
   bool _obscureConfirma = true;
 
-  @override
-  void initState() {
-    super.initState();
-    _viewModel = CadastroUsuarioViewModel(UserService());
-  }
+  CadastroUsuarioViewModel get _viewModel => widget.viewModel;
 
   @override
   void dispose() {
@@ -39,7 +38,6 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
     _emailController.dispose();
     _senhaController.dispose();
     _confirmaSenhaController.dispose();
-    _viewModel.dispose();
     super.dispose();
   }
 
@@ -80,7 +78,7 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
                   _buildFormCard(),
                 ],
               );
-            }
+            },
           ),
         ),
       ),
@@ -136,7 +134,9 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
               obscureText: _obscureSenha,
               suffixIcon: IconButton(
                 icon: Icon(
-                  _obscureSenha ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                  _obscureSenha
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
                   color: AppColors.textMuted,
                   size: 20,
                 ),
@@ -156,11 +156,14 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
               obscureText: _obscureConfirma,
               suffixIcon: IconButton(
                 icon: Icon(
-                  _obscureConfirma ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                  _obscureConfirma
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
                   color: AppColors.textMuted,
                   size: 20,
                 ),
-                onPressed: () => setState(() => _obscureConfirma = !_obscureConfirma),
+                onPressed: () =>
+                    setState(() => _obscureConfirma = !_obscureConfirma),
               ),
               validator: (v) {
                 if (v == null || v.isEmpty) return 'Confirme a senha.';
@@ -170,15 +173,18 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
             const SizedBox(height: 24),
             if (_viewModel.errorMessage != null) ...[
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 decoration: BoxDecoration(
                   color: AppColors.error.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.error.withValues(alpha: 0.4)),
+                  border: Border.all(
+                      color: AppColors.error.withValues(alpha: 0.4)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.error_outline, color: AppColors.error, size: 16),
+                    const Icon(Icons.error_outline,
+                        color: AppColors.error, size: 16),
                     const SizedBox(width: 8),
                     Expanded(
                       child: AppText.pequeno(
@@ -199,7 +205,8 @@ class _CadastroUsuarioScreenState extends State<CadastroUsuarioScreen> {
                     ? const SizedBox(
                         width: 20,
                         height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.surface),
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: AppColors.surface),
                       )
                     : const Icon(Icons.save_rounded, size: 20),
                 label: AppText(

@@ -1,11 +1,13 @@
 import 'package:flutter/foundation.dart';
-import '../services/auth_service.dart';
+import '../repositories/auth_repository.dart';
 import '../models/user.dart';
 
+/// Gerencia o estado da tela de login.
+/// Consome APENAS AuthRepository — nunca fala diretamente com AuthService.
 class LoginViewModel extends ChangeNotifier {
-  final AuthService _authService;
+  final AuthRepository _authRepository;
 
-  LoginViewModel(this._authService);
+  LoginViewModel(this._authRepository);
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -29,12 +31,12 @@ class LoginViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final result = await _authService.login(email, password);
-      
+      final result = await _authRepository.login(email, password);
+
       _token = result['access_token'] as String;
       _usuario = result['usuario'] as User;
       _successMessage = result['message'] as String;
-      
+
       return true;
     } catch (e) {
       _errorMessage = e.toString().replaceFirst('Exception: ', '');
