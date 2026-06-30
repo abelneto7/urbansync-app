@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
-import '../services/auth_service.dart';
+import '../models/repositories/auth_repository.dart';
 
 class BaseViewModel extends ChangeNotifier {
-  final AuthService _authService;
+  final AuthRepository _authRepository;
 
-  BaseViewModel(this._authService);
+  BaseViewModel(this._authRepository);
 
   int _currentIndex = 0;
   int get currentIndex => _currentIndex;
@@ -18,8 +18,7 @@ class BaseViewModel extends ChangeNotifier {
 
   Future<String> logout(String token) async {
     try {
-      final message = await _authService.logout(token);
-      return message;
+      return await _authRepository.logout(token);
     } catch (e) {
       return e.toString().replaceFirst('Exception: ', '');
     }

@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
-import '../models/interdicao.dart';
-import '../services/interdicao_service.dart';
+import '../models/entities/interdicao.dart';
+import '../models/repositories/interdicao_repository.dart';
 
 class InterdicoesViewModel extends ChangeNotifier {
-  final InterdicaoService _interdicaoService;
+  final InterdicaoRepository _interdicaoRepository;
 
-  InterdicoesViewModel(this._interdicaoService);
+  InterdicoesViewModel(this._interdicaoRepository);
 
   bool _isLoading = true;
   bool get isLoading => _isLoading;
@@ -22,7 +22,7 @@ class InterdicoesViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final lista = await _interdicaoService.listar(token);
+      final lista = await _interdicaoRepository.listar(token);
       _interdicoes = lista;
     } catch (e) {
       _errorMessage = e.toString().replaceFirst('Exception: ', '');
@@ -34,7 +34,10 @@ class InterdicoesViewModel extends ChangeNotifier {
 
   Future<String?> removerInterdicao(String token, Interdicao interdicao) async {
     try {
-      final message = await _interdicaoService.remover(token: token, id: interdicao.id);
+      final message = await _interdicaoRepository.remover(
+        token: token,
+        id: interdicao.id,
+      );
       _interdicoes.removeWhere((i) => i.id == interdicao.id);
       notifyListeners();
       return message;

@@ -1,12 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import '../models/interdicao.dart';
-import '../services/interdicao_service.dart';
+import '../models/entities/interdicao.dart';
+import '../models/entities/tipo_interdicao.dart';
+import '../models/repositories/interdicao_repository.dart';
 
 class MapaViewModel extends ChangeNotifier {
-  final InterdicaoService _interdicaoService;
+  final InterdicaoRepository _interdicaoRepository;
 
-  MapaViewModel(this._interdicaoService);
+  MapaViewModel(this._interdicaoRepository);
 
   bool _isLoading = true;
   bool get isLoading => _isLoading;
@@ -23,7 +24,7 @@ class MapaViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final lista = await _interdicaoService.listar(token);
+      final lista = await _interdicaoRepository.listar(token);
       _markers = lista.map((i) => _buildMarker(i)).toSet();
     } catch (e) {
       _errorMessage = e.toString().replaceFirst('Exception: ', '');
@@ -35,18 +36,19 @@ class MapaViewModel extends ChangeNotifier {
 
   Marker _buildMarker(Interdicao i) {
     final BitmapDescriptor icon;
-    switch (i.tipo) {
-      case 1:
+    switch (i.tipoEnum) {
+      case TipoInterdicao.obra:
         icon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange);
         break;
-      case 2:
+      case TipoInterdicao.evento:
         icon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue);
         break;
-      case 3:
+      case TipoInterdicao.acidente:
         icon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed);
         break;
-      default:
+      case TipoInterdicao.desconhecido:
         icon = BitmapDescriptor.defaultMarker;
+        break;
     }
 
     return Marker(

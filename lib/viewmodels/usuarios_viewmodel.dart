@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
-import '../models/user.dart';
-import '../services/user_service.dart';
+import '../models/entities/user.dart';
+import '../models/repositories/user_repository.dart';
 
 class UsuariosViewModel extends ChangeNotifier {
-  final UserService _userService;
+  final UserRepository _userRepository;
 
-  UsuariosViewModel(this._userService);
+  UsuariosViewModel(this._userRepository);
 
   bool _isLoading = true;
   bool get isLoading => _isLoading;
@@ -22,7 +22,7 @@ class UsuariosViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final lista = await _userService.listar(token);
+      final lista = await _userRepository.listar(token);
       _usuarios = lista;
     } catch (e) {
       _errorMessage = e.toString().replaceFirst('Exception: ', '');
@@ -34,7 +34,10 @@ class UsuariosViewModel extends ChangeNotifier {
 
   Future<String?> removerUsuario(String token, User usuario) async {
     try {
-      final message = await _userService.remover(token: token, id: usuario.id);
+      final message = await _userRepository.remover(
+        token: token,
+        id: usuario.id,
+      );
       _usuarios.removeWhere((i) => i.id == usuario.id);
       notifyListeners();
       return message;

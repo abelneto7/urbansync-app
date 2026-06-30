@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
-import '../models/user.dart';
-import '../services/user_service.dart';
+import '../models/entities/user.dart';
+import '../models/repositories/user_repository.dart';
 
 class CadastroUsuarioViewModel extends ChangeNotifier {
-  final UserService _userService;
+  final UserRepository _userRepository;
 
-  CadastroUsuarioViewModel(this._userService);
+  CadastroUsuarioViewModel(this._userRepository);
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -35,7 +35,7 @@ class CadastroUsuarioViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await _userService.cadastrar(
+      final response = await _userRepository.cadastrar(
         token: token,
         nome: nome,
         email: email,

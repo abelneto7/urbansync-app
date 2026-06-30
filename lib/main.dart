@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'screens/login_screen.dart';
-import 'utils/app_colors.dart';
+import 'models/repositories/auth_repository.dart';
+import 'views/login/login_view.dart';
+import 'models/services/auth_service.dart';
+import 'shared/utils/app_colors.dart';
+import 'viewmodels/login_viewmodel.dart';
 
 Future<void> main() async {
   await dotenv.load(fileName: ".env");
@@ -17,7 +20,9 @@ class UrbanSyncApp extends StatelessWidget {
       title: 'UrbanSync',
       debugShowCheckedModeBanner: false,
       theme: _buildTheme(),
-      home: const LoginScreen(),
+      home: LoginView(
+        viewModel: LoginViewModel(AuthRepository(AuthService())),
+      ),
     );
   }
 

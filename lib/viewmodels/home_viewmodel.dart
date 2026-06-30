@@ -1,10 +1,11 @@
 import 'package:flutter/foundation.dart';
-import '../services/interdicao_service.dart';
+import '../models/repositories/interdicao_repository.dart';
+import '../models/entities/tipo_interdicao.dart';
 
 class HomeViewModel extends ChangeNotifier {
-  final InterdicaoService _interdicaoService;
+  final InterdicaoRepository _interdicaoRepository;
 
-  HomeViewModel(this._interdicaoService);
+  HomeViewModel(this._interdicaoRepository);
 
   bool _isLoading = true;
   bool get isLoading => _isLoading;
@@ -27,10 +28,10 @@ class HomeViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final lista = await _interdicaoService.listar(token);
-      _obras = lista.where((i) => i.tipo == 1).length;
-      _eventos = lista.where((i) => i.tipo == 2).length;
-      _acidentes = lista.where((i) => i.tipo == 3).length;
+      final lista = await _interdicaoRepository.listar(token);
+      _obras = lista.where((i) => i.tipo == TipoInterdicao.obra.value).length;
+      _eventos = lista.where((i) => i.tipo == TipoInterdicao.evento.value).length;
+      _acidentes = lista.where((i) => i.tipo == TipoInterdicao.acidente.value).length;
     } catch (e) {
       _errorMessage = e.toString().replaceFirst('Exception: ', '');
     } finally {
