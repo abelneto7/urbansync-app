@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import '../../models/entities/user.dart';
 import '../../shared/utils/app_colors.dart';
 import '../../shared/utils/snackbar_utils.dart';
-import '../global_widgets/app_text.dart';
-import '../global_widgets/botao_remover.dart';
+import '../shared_widgets/app_text_widget.dart';
+import '../shared_widgets/botao_remover_widget.dart';
 import '../../viewmodels/usuarios_viewmodel.dart';
 import '../../viewmodels/cadastro_usuario_viewmodel.dart';
 import '../../models/repositories/user_repository.dart';
 import '../../models/services/user_service.dart';
-import '../cadastro_usuario/cadastro_usuario_view.dart';
+import 'cadastro_usuario_view.dart';
 
 class UsuariosView extends StatefulWidget {
   final String token;
@@ -40,16 +40,16 @@ class _UsuariosViewState extends State<UsuariosView> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const AppText.subtitulo('Remover usuário?'),
-        content: AppText.corpo('Deseja remover "${usuario.nome}"?'),
+        title: const AppTextWidget.subtitulo('Remover usuário?'),
+        content: AppTextWidget.corpo('Deseja remover "${usuario.nome}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const AppText('Cancelar', color: AppColors.textSecondary),
+            child: const AppTextWidget('Cancelar', color: AppColors.textSecondary),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const AppText('Remover', color: AppColors.error),
+            child: const AppTextWidget('Remover', color: AppColors.error),
           ),
         ],
       ),
@@ -93,7 +93,7 @@ class _UsuariosViewState extends State<UsuariosView> {
         onPressed: _irParaCadastro,
         backgroundColor: AppColors.accent,
         icon: const Icon(Icons.person_add_rounded, color: AppColors.textOnAccent),
-        label: const AppText('Novo', fontWeight: FontWeight.bold, color: AppColors.textOnAccent),
+        label: const AppTextWidget('Novo', fontWeight: FontWeight.bold, color: AppColors.textOnAccent),
       ),
       body: _buildBody(),
     );
@@ -114,7 +114,7 @@ class _UsuariosViewState extends State<UsuariosView> {
               children: [
                 const Icon(Icons.cloud_off_rounded, color: AppColors.textMuted, size: 48),
                 const SizedBox(height: 16),
-                AppText.corpo(widget.viewModel.errorMessage!),
+                AppTextWidget.corpo(widget.viewModel.errorMessage!),
                 ElevatedButton(
                   onPressed: _carregarUsuarios,
                   child: const Text('Tentar novamente'),
@@ -126,7 +126,7 @@ class _UsuariosViewState extends State<UsuariosView> {
 
         if (widget.viewModel.usuarios.isEmpty) {
           return const Center(
-            child: AppText.corpo('Nenhum usuário encontrado.', color: AppColors.textMuted),
+            child: AppTextWidget.corpo('Nenhum usuário encontrado.', color: AppColors.textMuted),
           );
         }
 
@@ -150,7 +150,7 @@ class _UsuariosViewState extends State<UsuariosView> {
                   children: [
                     CircleAvatar(
                       backgroundColor: AppColors.accent.withValues(alpha: 0.2),
-                      child: AppText.subtitulo(
+                      child: AppTextWidget.subtitulo(
                         usuario.nome.substring(0, 1).toUpperCase(),
                         color: AppColors.accent,
                       ),
@@ -160,13 +160,13 @@ class _UsuariosViewState extends State<UsuariosView> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          AppText.subtitulo(usuario.nome, color: AppColors.textPrimary),
+                          AppTextWidget.subtitulo(usuario.nome, color: AppColors.textPrimary),
                           const SizedBox(height: 4),
-                          AppText.pequeno(usuario.email, color: AppColors.textSecondary),
+                          AppTextWidget.pequeno(usuario.email, color: AppColors.textSecondary),
                         ],
                       ),
                     ),
-                    BotaoRemover(
+                    BotaoRemoverWidget(
                       tooltip: 'Remover usuário',
                       onPressed: () => _removerUsuario(usuario),
                     ),

@@ -5,8 +5,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../models/entities/tipo_interdicao.dart';
 import '../../shared/utils/app_colors.dart';
 import '../../shared/utils/snackbar_utils.dart';
-import '../global_widgets/app_text.dart';
-import '../global_widgets/tipo_interdicao_ui.dart';
+import '../shared_widgets/app_text_widget.dart';
+import 'components/tipo_interdicao_widget.dart';
 import '../../viewmodels/mapa_viewmodel.dart';
 
 const _lagarto = LatLng(-10.9167, -37.6500);
@@ -137,12 +137,12 @@ class _MapaViewState extends State<MapaView> {
                             color: Colors.white, size: 18),
                         const SizedBox(width: 10),
                         Expanded(
-                            child: AppText.pequeno(
+                            child: AppTextWidget.pequeno(
                                 _viewModel.errorMessage!,
                                 color: Colors.white)),
                         TextButton(
                           onPressed: _carregarMarcadores,
-                          child: const AppText.pequeno('Tentar',
+                          child: const AppTextWidget.pequeno('Tentar',
                               color: Colors.white),
                         ),
                       ],
@@ -210,7 +210,7 @@ class _MapaViewState extends State<MapaView> {
       children: [
         Icon(icon, color: color, size: 14),
         const SizedBox(width: 6),
-        AppText.pequeno(label, color: AppColors.textSecondary),
+        AppTextWidget.pequeno(label, color: AppColors.textSecondary),
       ],
     );
   }

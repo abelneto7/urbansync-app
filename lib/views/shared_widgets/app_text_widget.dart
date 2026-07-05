@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../shared/utils/app_colors.dart';
 
-class AppText extends StatelessWidget {
+class AppTextWidget extends StatelessWidget {
   final String text;
   final double fontSize;
   final Color color;
@@ -10,7 +10,7 @@ class AppText extends StatelessWidget {
   final int? maxLines;
   final TextOverflow overflow;
 
-  const AppText(
+  const AppTextWidget(
     this.text, {
     super.key,
     this.fontSize = 14.0,
@@ -21,7 +21,7 @@ class AppText extends StatelessWidget {
     this.overflow = TextOverflow.ellipsis,
   });
 
-  const AppText.titulo(
+  const AppTextWidget.titulo(
     this.text, {
     super.key,
     this.color = AppColors.textPrimary,
@@ -31,7 +31,7 @@ class AppText extends StatelessWidget {
   })  : fontSize = 22.0,
         fontWeight = FontWeight.bold;
 
-  const AppText.subtitulo(
+  const AppTextWidget.subtitulo(
     this.text, {
     super.key,
     this.color = AppColors.textSecondary,
@@ -41,7 +41,7 @@ class AppText extends StatelessWidget {
   })  : fontSize = 16.0,
         fontWeight = FontWeight.w600;
 
-  const AppText.corpo(
+  const AppTextWidget.corpo(
     this.text, {
     super.key,
     this.color = AppColors.textSecondary,
@@ -51,7 +51,7 @@ class AppText extends StatelessWidget {
   })  : fontSize = 14.0,
         fontWeight = FontWeight.normal;
 
-  const AppText.pequeno(
+  const AppTextWidget.pequeno(
     this.text, {
     super.key,
     this.color = AppColors.textMuted,
@@ -61,7 +61,7 @@ class AppText extends StatelessWidget {
   })  : fontSize = 12.0,
         fontWeight = FontWeight.normal;
 
-  const AppText.destaque(
+  const AppTextWidget.destaque(
     this.text, {
     super.key,
     this.textAlign = TextAlign.start,

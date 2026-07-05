@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../shared/utils/app_colors.dart';
 
-class CustomTextField extends StatelessWidget {
+class CustomTextFieldWidget extends StatelessWidget {
   final TextEditingController controller;
   final String label;
   final IconData icon;
@@ -12,7 +12,7 @@ class CustomTextField extends StatelessWidget {
   final int maxLines;
   final int? maxLength;
 
-  const CustomTextField({
+  const CustomTextFieldWidget({
     super.key,
     required this.controller,
     required this.label,

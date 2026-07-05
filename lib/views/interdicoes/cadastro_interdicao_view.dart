@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../shared/utils/app_colors.dart';
 import '../../shared/utils/snackbar_utils.dart';
-import '../global_widgets/app_text.dart';
-import '../global_widgets/custom_text_field.dart';
-import '../global_widgets/tipo_interdicao_ui.dart';
+import '../shared_widgets/app_text_widget.dart';
+import '../shared_widgets/custom_text_field_widget.dart';
+import 'components/tipo_interdicao_widget.dart';
 import '../../models/entities/tipo_interdicao.dart';
 import '../../viewmodels/cadastro_interdicao_viewmodel.dart';
-import '../seletor_coordenada/seletor_coordenada_view.dart';
+import 'components/seletor_coordenada_view.dart';
 
 class CadastroInterdicaoView extends StatefulWidget {
   final String token;
@@ -86,7 +86,7 @@ class _CadastroInterdicaoViewState extends State<CadastroInterdicaoView> {
               color: AppColors.textPrimary, size: 18),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const AppText.subtitulo(
+        title: const AppTextWidget.subtitulo(
           'Nova Interdição',
           color: AppColors.textPrimary,
         ),
@@ -105,7 +105,7 @@ class _CadastroInterdicaoViewState extends State<CadastroInterdicaoView> {
                   _buildSectionLabel('Informações básicas'),
                   const SizedBox(height: 12),
 
-                  CustomTextField(
+                  CustomTextFieldWidget(
                     controller: _tituloController,
                     label: 'Título *',
                     icon: Icons.title_rounded,
@@ -117,7 +117,7 @@ class _CadastroInterdicaoViewState extends State<CadastroInterdicaoView> {
                   ),
                   const SizedBox(height: 12),
 
-                  CustomTextField(
+                  CustomTextFieldWidget(
                     controller: _descricaoController,
                     label: 'Descrição (opcional)',
                     icon: Icons.description_outlined,
@@ -140,7 +140,7 @@ class _CadastroInterdicaoViewState extends State<CadastroInterdicaoView> {
                     maintainState: true,
                     child: Column(
                       children: [
-                        CustomTextField(
+                        CustomTextFieldWidget(
                           controller: _latitudeController,
                           label: 'Latitude',
                           icon: Icons.my_location_rounded,
@@ -153,7 +153,7 @@ class _CadastroInterdicaoViewState extends State<CadastroInterdicaoView> {
                             return null;
                           },
                         ),
-                        CustomTextField(
+                        CustomTextFieldWidget(
                           controller: _longitudeController,
                           label: 'Longitude',
                           icon: Icons.explore_outlined,
@@ -192,7 +192,7 @@ class _CadastroInterdicaoViewState extends State<CadastroInterdicaoView> {
                               color: AppColors.error, size: 16),
                           const SizedBox(width: 8),
                           Expanded(
-                            child: AppText.pequeno(
+                            child: AppTextWidget.pequeno(
                               _viewModel.errorMessage!,
                               color: AppColors.error,
                             ),
@@ -218,7 +218,7 @@ class _CadastroInterdicaoViewState extends State<CadastroInterdicaoView> {
                               ),
                             )
                           : const Icon(Icons.check_circle_outline_rounded, size: 20),
-                      label: AppText(
+                      label: AppTextWidget(
                         _viewModel.isLoading ? 'Cadastrando...' : 'Cadastrar Interdição',
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
@@ -258,7 +258,7 @@ class _CadastroInterdicaoViewState extends State<CadastroInterdicaoView> {
           ),
         ),
         const SizedBox(width: 8),
-        AppText.subtitulo(label, color: AppColors.textSecondary),
+        AppTextWidget.subtitulo(label, color: AppColors.textSecondary),
       ],
     );
   }
@@ -303,15 +303,15 @@ class _CadastroInterdicaoViewState extends State<CadastroInterdicaoView> {
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const AppText.pequeno(
+                        const AppTextWidget.pequeno(
                           'Localização selecionada',
                           color: AppColors.accent,
                         ),
-                        AppText.corpo(
+                        AppTextWidget.corpo(
                           'Lat: ${pos.latitude.toStringAsFixed(6)}',
                           color: AppColors.textPrimary,
                         ),
-                        AppText.corpo(
+                        AppTextWidget.corpo(
                           'Lng: ${pos.longitude.toStringAsFixed(6)}',
                           color: AppColors.textPrimary,
                         ),
@@ -320,11 +320,11 @@ class _CadastroInterdicaoViewState extends State<CadastroInterdicaoView> {
                   : const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        AppText.corpo(
+                        AppTextWidget.corpo(
                           'Selecionar no mapa',
                           color: AppColors.textPrimary,
                         ),
-                        AppText.pequeno(
+                        AppTextWidget.pequeno(
                           'Toque para abrir o mapa e marcar a posição',
                           color: AppColors.textMuted,
                         ),
@@ -371,7 +371,7 @@ class _CadastroInterdicaoViewState extends State<CadastroInterdicaoView> {
                     size: 22,
                   ),
                   const SizedBox(height: 4),
-                  AppText.pequeno(
+                  AppTextWidget.pequeno(
                     tipo.label,
                     color: isSelected ? color : AppColors.textMuted,
                   ),
@@ -403,7 +403,7 @@ class _CadastroInterdicaoViewState extends State<CadastroInterdicaoView> {
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: AppText.corpo(
+            child: AppTextWidget.corpo(
               _viewModel.statusAtivo ? 'Interdição Ativa' : 'Interdição Encerrada',
               color: _viewModel.statusAtivo ? AppColors.textPrimary : AppColors.textMuted,
             ),

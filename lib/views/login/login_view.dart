@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../shared/utils/app_colors.dart';
 import '../../shared/utils/snackbar_utils.dart';
-import '../global_widgets/app_text.dart';
-import '../global_widgets/custom_text_field.dart';
+import '../shared_widgets/app_text_widget.dart';
+import '../shared_widgets/custom_text_field_widget.dart';
 import '../../viewmodels/login_viewmodel.dart';
 import '../base/base_view.dart';
 import '../../models/repositories/auth_repository.dart';
@@ -157,13 +157,13 @@ class _LoginViewState extends State<LoginView>
           ),
         ),
         const SizedBox(height: 20),
-        const AppText.titulo(
+        const AppTextWidget.titulo(
           'UrbanSync',
           color: AppColors.textPrimary,
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 6),
-        const AppText.corpo(
+        const AppTextWidget.corpo(
           'Mapeamento de interdições viárias\nLagarto · Sergipe',
           color: AppColors.textSecondary,
           textAlign: TextAlign.center,
@@ -192,12 +192,12 @@ class _LoginViewState extends State<LoginView>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const AppText.subtitulo('Entrar na conta'),
+            const AppTextWidget.subtitulo('Entrar na conta'),
             const SizedBox(height: 4),
-            const AppText.pequeno('Use suas credenciais de acesso'),
+            const AppTextWidget.pequeno('Use suas credenciais de acesso'),
             const SizedBox(height: 24),
 
-            CustomTextField(
+            CustomTextFieldWidget(
               controller: _emailController,
               label: 'E-mail',
               icon: Icons.email_outlined,
@@ -210,7 +210,7 @@ class _LoginViewState extends State<LoginView>
             ),
             const SizedBox(height: 14),
 
-            CustomTextField(
+            CustomTextFieldWidget(
               controller: _passwordController,
               label: 'Senha',
               icon: Icons.lock_outline_rounded,
@@ -256,7 +256,7 @@ class _LoginViewState extends State<LoginView>
                                 color: AppColors.error, size: 16),
                             const SizedBox(width: 8),
                             Expanded(
-                              child: AppText.pequeno(
+                              child: AppTextWidget.pequeno(
                                 _viewModel.errorMessage!,
                                 color: AppColors.error,
                               ),
@@ -292,7 +292,7 @@ class _LoginViewState extends State<LoginView>
                                       AppColors.textOnAccent),
                                 ),
                               )
-                            : const AppText(
+                            : const AppTextWidget(
                                 'Entrar',
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,

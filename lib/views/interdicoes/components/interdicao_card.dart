@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import '../../models/entities/interdicao.dart';
 import '../../shared/utils/app_colors.dart';
-import 'app_text.dart';
-import 'botao_remover.dart';
-import 'tipo_interdicao_ui.dart';
+import '../../shared_widgets/app_text_widget.dart';
+import '../../shared_widgets/botao_remover_widget.dart';
+import 'tipo_interdicao_widget.dart';
 
-class InterdicaoCard extends StatelessWidget {
+class InterdicaoCardWidget extends StatelessWidget {
   final Interdicao interdicao;
   final VoidCallback onRemover;
 
-  const InterdicaoCard({
+  const InterdicaoCardWidget({
     super.key,
     required this.interdicao,
     required this.onRemover,
@@ -65,7 +65,7 @@ class InterdicaoCard extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: AppText.subtitulo(
+                        child: AppTextWidget.subtitulo(
                           interdicao.titulo,
                           color: AppColors.textPrimary,
                           maxLines: 1,
@@ -82,7 +82,7 @@ class InterdicaoCard extends StatelessWidget {
                   if (interdicao.descricao != null &&
                       interdicao.descricao!.isNotEmpty) ...[
                     const SizedBox(height: 4),
-                    AppText.corpo(
+                    AppTextWidget.corpo(
                       interdicao.descricao!,
                       maxLines: 2,
                     ),
@@ -98,7 +98,7 @@ class InterdicaoCard extends StatelessWidget {
                         color: AppColors.textMuted,
                       ),
                       const SizedBox(width: 4),
-                      AppText.pequeno(
+                      AppTextWidget.pequeno(
                         '${interdicao.latitude.toStringAsFixed(4)}, '
                         '${interdicao.longitude.toStringAsFixed(4)}',
                       ),
@@ -111,7 +111,7 @@ class InterdicaoCard extends StatelessWidget {
             ),
 
             const SizedBox(width: 8),
-            BotaoRemover(onPressed: onRemover),
+            BotaoRemoverWidget(onPressed: onRemover),
           ],
         ),
       ),
@@ -134,7 +134,7 @@ class _TipoBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: color.withValues(alpha: 0.5), width: 0.8),
       ),
-      child: AppText.pequeno(label, color: color),
+      child: AppTextWidget.pequeno(label, color: color),
     );
   }
 }
@@ -160,7 +160,7 @@ class _StatusBadge extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 4),
-        AppText.pequeno(label, color: color),
+        AppTextWidget.pequeno(label, color: color),
       ],
     );
   }

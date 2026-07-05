@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../shared/utils/app_colors.dart';
 
-class BotaoRemover extends StatelessWidget {
+class BotaoRemoverWidget extends StatelessWidget {
   final VoidCallback onPressed;
   final double size;
   final Color color;
   final String tooltip;
 
-  const BotaoRemover({
+  const BotaoRemoverWidget({
     super.key,
     required this.onPressed,
     this.size = 20.0,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/entities/user.dart';
 import '../../shared/utils/app_colors.dart';
-import '../global_widgets/app_text.dart';
+import '../shared_widgets/app_text_widget.dart';
 import '../../viewmodels/home_viewmodel.dart';
 
 class HomeView extends StatefulWidget {
@@ -45,7 +45,7 @@ class _HomeViewState extends State<HomeView> {
               children: [
                 const Icon(Icons.error_outline, color: AppColors.error, size: 48),
                 const SizedBox(height: 16),
-                AppText.corpo(widget.viewModel.errorMessage!),
+                AppTextWidget.corpo(widget.viewModel.errorMessage!),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () =>
@@ -62,9 +62,9 @@ class _HomeViewState extends State<HomeView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const AppText.titulo('Visão Geral da Cidade', color: AppColors.textPrimary),
+              const AppTextWidget.titulo('Visão Geral da Cidade', color: AppColors.textPrimary),
               const SizedBox(height: 8),
-              const AppText.corpo('Estatísticas em tempo real do sistema UrbanSync.'),
+              const AppTextWidget.corpo('Estatísticas em tempo real do sistema UrbanSync.'),
               const SizedBox(height: 30),
               _buildInfoCard('Obras', widget.viewModel.obras, AppColors.tipoObra, Icons.construction_rounded),
               const SizedBox(height: 16),
@@ -101,8 +101,8 @@ class _HomeViewState extends State<HomeView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                AppText.pequeno(label, color: AppColors.textSecondary),
-                AppText(value.toString(), fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                AppTextWidget.pequeno(label, color: AppColors.textSecondary),
+                AppTextWidget(value.toString(), fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
               ],
             ),
           ),

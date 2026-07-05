@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/entities/user.dart';
 import '../../shared/utils/app_colors.dart';
 import '../../shared/utils/snackbar_utils.dart';
-import '../global_widgets/app_text.dart';
+import '../shared_widgets/app_text_widget.dart';
 import '../home/home_view.dart';
 import '../mapa/mapa_view.dart';
 import '../interdicoes/interdicoes_view.dart';
@@ -90,7 +90,7 @@ class _BaseViewState extends State<BaseView> {
         final currentIndex = widget.viewModel.currentIndex;
         return Scaffold(
           appBar: AppBar(
-            title: const AppText('UrbanSync', fontSize: 18, fontWeight: FontWeight.bold),
+            title: const AppTextWidget('UrbanSync', fontSize: 18, fontWeight: FontWeight.bold),
             actions: [
               IconButton(
                 icon: const Icon(Icons.logout_rounded, color: AppColors.textSecondary, size: 20),
@@ -118,15 +118,15 @@ class _BaseViewState extends State<BaseView> {
                         height: 48,
                       ),
                       const SizedBox(height: 12),
-                      const AppText.subtitulo('Menu', color: AppColors.textPrimary),
-                      AppText.pequeno(widget.usuario?.email ?? 'Administrador', color: AppColors.textSecondary),
+                      const AppTextWidget.subtitulo('Menu', color: AppColors.textPrimary),
+                      AppTextWidget.pequeno(widget.usuario?.email ?? 'Administrador', color: AppColors.textSecondary),
                     ],
                   ),
                 ),
                 ListTile(
                   leading: Icon(Icons.dashboard_rounded,
                       color: currentIndex == 0 ? AppColors.accent : AppColors.textMuted),
-                  title: AppText('Dashboard',
+                  title: AppTextWidget('Dashboard',
                       color: currentIndex == 0 ? AppColors.accent : AppColors.textPrimary,
                       fontWeight: currentIndex == 0 ? FontWeight.bold : FontWeight.normal),
                   selected: currentIndex == 0,
@@ -135,7 +135,7 @@ class _BaseViewState extends State<BaseView> {
                 ListTile(
                   leading: Icon(Icons.map_rounded,
                       color: currentIndex == 1 ? AppColors.accent : AppColors.textMuted),
-                  title: AppText('Mapa',
+                  title: AppTextWidget('Mapa',
                       color: currentIndex == 1 ? AppColors.accent : AppColors.textPrimary,
                       fontWeight: currentIndex == 1 ? FontWeight.bold : FontWeight.normal),
                   selected: currentIndex == 1,
@@ -144,7 +144,7 @@ class _BaseViewState extends State<BaseView> {
                 ListTile(
                   leading: Icon(Icons.list_alt_rounded,
                       color: currentIndex == 2 ? AppColors.accent : AppColors.textMuted),
-                  title: AppText('Interdições',
+                  title: AppTextWidget('Interdições',
                       color: currentIndex == 2 ? AppColors.accent : AppColors.textPrimary,
                       fontWeight: currentIndex == 2 ? FontWeight.bold : FontWeight.normal),
                   selected: currentIndex == 2,
@@ -153,7 +153,7 @@ class _BaseViewState extends State<BaseView> {
                 ListTile(
                   leading: Icon(Icons.people_alt_rounded,
                       color: currentIndex == 3 ? AppColors.accent : AppColors.textMuted),
-                  title: AppText('Usuários',
+                  title: AppTextWidget('Usuários',
                       color: currentIndex == 3 ? AppColors.accent : AppColors.textPrimary,
                       fontWeight: currentIndex == 3 ? FontWeight.bold : FontWeight.normal),
                   selected: currentIndex == 3,

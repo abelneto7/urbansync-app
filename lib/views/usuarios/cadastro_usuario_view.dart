@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../shared/utils/app_colors.dart';
 import '../../shared/utils/snackbar_utils.dart';
-import '../global_widgets/app_text.dart';
-import '../global_widgets/custom_text_field.dart';
+import '../shared_widgets/app_text_widget.dart';
+import '../shared_widgets/custom_text_field_widget.dart';
 import '../../viewmodels/cadastro_usuario_viewmodel.dart';
 
 class CadastroUsuarioView extends StatefulWidget {
@@ -65,7 +65,7 @@ class _CadastroUsuarioViewState extends State<CadastroUsuarioView> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const AppText('Novo Usuário', fontSize: 18, fontWeight: FontWeight.bold),
+        title: const AppTextWidget('Novo Usuário', fontSize: 18, fontWeight: FontWeight.bold),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -105,7 +105,7 @@ class _CadastroUsuarioViewState extends State<CadastroUsuarioView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            CustomTextField(
+            CustomTextFieldWidget(
               controller: _nomeController,
               label: 'Nome Completo',
               icon: Icons.person_outline_rounded,
@@ -115,7 +115,7 @@ class _CadastroUsuarioViewState extends State<CadastroUsuarioView> {
               },
             ),
             const SizedBox(height: 16),
-            CustomTextField(
+            CustomTextFieldWidget(
               controller: _emailController,
               label: 'E-mail Institucional',
               icon: Icons.email_outlined,
@@ -127,7 +127,7 @@ class _CadastroUsuarioViewState extends State<CadastroUsuarioView> {
               },
             ),
             const SizedBox(height: 16),
-            CustomTextField(
+            CustomTextFieldWidget(
               controller: _senhaController,
               label: 'Senha de Acesso',
               icon: Icons.lock_outline_rounded,
@@ -149,7 +149,7 @@ class _CadastroUsuarioViewState extends State<CadastroUsuarioView> {
               },
             ),
             const SizedBox(height: 16),
-            CustomTextField(
+            CustomTextFieldWidget(
               controller: _confirmaSenhaController,
               label: 'Re-digite a Senha',
               icon: Icons.lock_reset_rounded,
@@ -187,7 +187,7 @@ class _CadastroUsuarioViewState extends State<CadastroUsuarioView> {
                         color: AppColors.error, size: 16),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: AppText.pequeno(
+                      child: AppTextWidget.pequeno(
                         _viewModel.errorMessage!,
                         color: AppColors.error,
                       ),
@@ -209,7 +209,7 @@ class _CadastroUsuarioViewState extends State<CadastroUsuarioView> {
                             strokeWidth: 2, color: AppColors.surface),
                       )
                     : const Icon(Icons.save_rounded, size: 20),
-                label: AppText(
+                label: AppTextWidget(
                   _viewModel.isLoading ? 'Cadastrando...' : 'Salvar Usuário',
                   color: AppColors.textOnAccent,
                   fontWeight: FontWeight.bold,

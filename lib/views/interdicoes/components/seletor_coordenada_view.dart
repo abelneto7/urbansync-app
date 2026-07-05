@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../shared/utils/app_colors.dart';
-import '../global_widgets/app_text.dart';
+import '../shared_widgets/app_text_widget.dart';
 import '../../viewmodels/seletor_coordenada_viewmodel.dart';
 
 const _lagarto = LatLng(-10.9167, -37.6500);
@@ -64,7 +64,7 @@ class _SeletorCoordenadaViewState extends State<_SeletorCoordenadaView> {
               color: AppColors.textOnAccent, size: 18),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const AppText.subtitulo(
+        title: const AppTextWidget.subtitulo(
           'Toque para marcar a posição',
           color: AppColors.textOnAccent,
         ),
@@ -108,13 +108,13 @@ class _SeletorCoordenadaViewState extends State<_SeletorCoordenadaView> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const AppText.pequeno('Posição selecionada:', color: AppColors.textMuted),
+                        const AppTextWidget.pequeno('Posição selecionada:', color: AppColors.textMuted),
                         const SizedBox(height: 4),
-                        AppText.corpo(
+                        AppTextWidget.corpo(
                           'Lat: ${latLng.latitude.toStringAsFixed(6)}',
                           color: AppColors.textPrimary,
                         ),
-                        AppText.corpo(
+                        AppTextWidget.corpo(
                           'Lng: ${latLng.longitude.toStringAsFixed(6)}',
                           color: AppColors.textPrimary,
                         ),
@@ -130,7 +130,7 @@ class _SeletorCoordenadaViewState extends State<_SeletorCoordenadaView> {
                 child: ElevatedButton.icon(
                   onPressed: latLng != null ? _confirmar : null,
                   icon: const Icon(Icons.check_circle_outline_rounded, size: 20),
-                  label: const AppText(
+                  label: const AppTextWidget(
                     'Confirmar localização',
                     fontSize: 15,
                     fontWeight: FontWeight.bold,

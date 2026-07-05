@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import '../../models/entities/interdicao.dart';
 import '../../shared/utils/app_colors.dart';
 import '../../shared/utils/snackbar_utils.dart';
-import '../global_widgets/app_text.dart';
-import '../global_widgets/interdicao_card.dart';
+import '../shared_widgets/app_text_widget.dart';
+import 'components/interdicao_card.dart';
 import '../../viewmodels/interdicoes_viewmodel.dart';
 import '../../viewmodels/cadastro_interdicao_viewmodel.dart';
 import '../../models/repositories/interdicao_repository.dart';
 import '../../models/services/interdicao_service.dart';
-import '../cadastro_interdicao/cadastro_interdicao_view.dart';
+import 'cadastro_interdicao_view.dart';
 
 class InterdicoesView extends StatefulWidget {
   final String token;
@@ -40,16 +40,16 @@ class _InterdicoesViewState extends State<InterdicoesView> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const AppText.subtitulo('Remover interdição?'),
-        content: AppText.corpo('Deseja remover "${interdicao.titulo}"?'),
+        title: const AppTextWidget.subtitulo('Remover interdição?'),
+        content: AppTextWidget.corpo('Deseja remover "${interdicao.titulo}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const AppText('Cancelar', color: AppColors.textSecondary),
+            child: const AppTextWidget('Cancelar', color: AppColors.textSecondary),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const AppText('Remover', color: AppColors.error),
+            child: const AppTextWidget('Remover', color: AppColors.error),
           ),
         ],
       ),
@@ -70,7 +70,6 @@ class _InterdicoesViewState extends State<InterdicoesView> {
   }
 
   Future<void> _irParaCadastro() async {
-    // Ponto de navegação: monta o ViewModel com o Repository correto.
     final resultado = await Navigator.of(context).push<Interdicao>(
       MaterialPageRoute(
         builder: (_) => CadastroInterdicaoView(
@@ -94,7 +93,7 @@ class _InterdicoesViewState extends State<InterdicoesView> {
         onPressed: _irParaCadastro,
         backgroundColor: AppColors.accent,
         icon: const Icon(Icons.add_rounded, color: AppColors.textOnAccent),
-        label: const AppText('Nova', fontWeight: FontWeight.bold, color: AppColors.textOnAccent),
+        label: const AppTextWidget('Nova', fontWeight: FontWeight.bold, color: AppColors.textOnAccent),
       ),
       body: _buildBody(),
     );
@@ -115,7 +114,7 @@ class _InterdicoesViewState extends State<InterdicoesView> {
               children: [
                 const Icon(Icons.cloud_off_rounded, color: AppColors.textMuted, size: 48),
                 const SizedBox(height: 16),
-                AppText.corpo(widget.viewModel.errorMessage!),
+                AppTextWidget.corpo(widget.viewModel.errorMessage!),
                 ElevatedButton(
                   onPressed: _carregarInterdicoes,
                   child: const Text('Tentar novamente'),
@@ -127,7 +126,7 @@ class _InterdicoesViewState extends State<InterdicoesView> {
 
         if (widget.viewModel.interdicoes.isEmpty) {
           return const Center(
-            child: AppText.corpo('Nenhuma interdição cadastrada.', color: AppColors.textMuted),
+            child: AppTextWidget.corpo('Nenhuma interdição cadastrada.', color: AppColors.textMuted),
           );
         }
 
@@ -139,7 +138,7 @@ class _InterdicoesViewState extends State<InterdicoesView> {
             itemCount: widget.viewModel.interdicoes.length,
             itemBuilder: (context, index) {
               final interdicao = widget.viewModel.interdicoes[index];
-              return InterdicaoCard(
+              return InterdicaoCardWidget(
                 interdicao: interdicao,
                 onRemover: () => _removerInterdicao(interdicao),
               );
