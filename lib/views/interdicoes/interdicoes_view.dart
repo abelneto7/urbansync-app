@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/entities/interdicao.dart';
-import '../../shared/utils/app_colors.dart';
-import '../../shared/utils/snackbar_utils.dart';
+import '../../shared/theme/app_colors.dart';
+import '../../shared/ui_helpers/snackbar_helper.dart';
 import '../shared_widgets/app_text_widget.dart';
 import 'components/interdicao_card.dart';
 import '../../viewmodels/interdicoes_viewmodel.dart';
@@ -60,11 +60,11 @@ class _InterdicoesViewState extends State<InterdicoesView> {
     try {
       final message = await widget.viewModel.removerInterdicao(widget.token, interdicao);
       if (mounted && message != null) {
-        SnackbarUtils.showSuccess(context, message);
+        SnackbarHelper.showSuccess(context, message);
       }
     } catch (e) {
       if (mounted) {
-        SnackbarUtils.showError(context, 'Erro: $e');
+        SnackbarHelper.showError(context, 'Erro: $e');
       }
     }
   }

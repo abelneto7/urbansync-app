@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/entities/user.dart';
-import '../../shared/utils/app_colors.dart';
+import '../../shared/theme/app_colors.dart';
 import '../shared_widgets/app_text_widget.dart';
 import '../../viewmodels/home_viewmodel.dart';
 

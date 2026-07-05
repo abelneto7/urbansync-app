@@ -1,4 +1,4 @@
-import '../../shared/utils/http_client.dart';
+import '../../shared/network/http_client.dart';
 
 class UserService {
   Future<Map<String, dynamic>> listar(String token) async {

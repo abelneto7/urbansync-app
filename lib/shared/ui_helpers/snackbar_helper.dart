@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'app_colors.dart';
+import '../theme/app_colors.dart';
 
-class SnackbarUtils {
+class SnackbarHelper {
   static void showSuccess(BuildContext context, String message) {
     _showSnackbar(context, message, AppColors.success);
   }

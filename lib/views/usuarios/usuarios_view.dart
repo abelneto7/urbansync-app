@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/entities/user.dart';
-import '../../shared/utils/app_colors.dart';
-import '../../shared/utils/snackbar_utils.dart';
+import '../../shared/theme/app_colors.dart';
+import '../../shared/ui_helpers/snackbar_helper.dart';
 import '../shared_widgets/app_text_widget.dart';
 import '../shared_widgets/botao_remover_widget.dart';
 import '../../viewmodels/usuarios_viewmodel.dart';
@@ -60,11 +60,11 @@ class _UsuariosViewState extends State<UsuariosView> {
     try {
       final message = await widget.viewModel.removerUsuario(widget.token, usuario);
       if (mounted && message != null) {
-        SnackbarUtils.showSuccess(context, message);
+        SnackbarHelper.showSuccess(context, message);
       }
     } catch (e) {
       if (mounted) {
-        SnackbarUtils.showError(context, 'Erro: $e');
+        SnackbarHelper.showError(context, 'Erro: $e');
       }
     }
   }

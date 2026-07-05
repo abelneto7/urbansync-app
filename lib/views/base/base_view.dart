@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/entities/user.dart';
-import '../../shared/utils/app_colors.dart';
-import '../../shared/utils/snackbar_utils.dart';
+import '../../shared/theme/app_colors.dart';
+import '../../shared/ui_helpers/snackbar_helper.dart';
 import '../shared_widgets/app_text_widget.dart';
 import '../home/home_view.dart';
 import '../mapa/mapa_view.dart';
@@ -70,7 +70,7 @@ class _BaseViewState extends State<BaseView> {
     final message = await widget.viewModel.logout(widget.token);
     if (!mounted) return;
 
-    SnackbarUtils.showSuccess(context, message);
+    SnackbarHelper.showSuccess(context, message);
 
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(

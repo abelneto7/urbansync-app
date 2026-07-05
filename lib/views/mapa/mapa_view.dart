@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../models/entities/tipo_interdicao.dart';
-import '../../shared/utils/app_colors.dart';
-import '../../shared/utils/snackbar_utils.dart';
+import '../../shared/theme/app_colors.dart';
+import '../../shared/ui_helpers/snackbar_helper.dart';
 import '../shared_widgets/app_text_widget.dart';
 import 'components/tipo_interdicao_widget.dart';
 import '../../viewmodels/mapa_viewmodel.dart';
@@ -82,9 +82,9 @@ class _MapaViewState extends State<MapaView> {
   void _mostrarSnack(String msg, {bool isErro = false}) {
     if (!mounted) return;
     if (isErro) {
-      SnackbarUtils.showError(context, msg);
+      SnackbarHelper.showError(context, msg);
     } else {
-      SnackbarUtils.showSuccess(context, msg);
+      SnackbarHelper.showSuccess(context, msg);
     }
   }
 

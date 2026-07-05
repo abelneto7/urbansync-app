@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../shared/utils/app_colors.dart';
-import '../../shared/utils/snackbar_utils.dart';
+import '../../shared/theme/app_colors.dart';
+import '../../shared/ui_helpers/snackbar_helper.dart';
 import '../shared_widgets/app_text_widget.dart';
 import '../shared_widgets/custom_text_field_widget.dart';
 import '../../viewmodels/cadastro_usuario_viewmodel.dart';
@@ -55,7 +55,7 @@ class _CadastroUsuarioViewState extends State<CadastroUsuarioView> {
     if (!mounted) return;
 
     if (result != null) {
-      SnackbarUtils.showSuccess(context, _viewModel.successMessage!);
+      SnackbarHelper.showSuccess(context, _viewModel.successMessage!);
       Navigator.of(context).pop(result);
     }
   }

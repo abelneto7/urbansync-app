@@ -1,4 +1,4 @@
-import '../../shared/utils/http_client.dart';
+import '../../shared/network/http_client.dart';
 
 class AuthService {
   Future<Map<String, dynamic>> login(String email, String password) async {

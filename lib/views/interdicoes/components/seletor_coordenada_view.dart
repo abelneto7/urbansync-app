@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import '../../shared/utils/app_colors.dart';
+import '../../shared/theme/app_colors.dart';
 import '../shared_widgets/app_text_widget.dart';
 import '../../viewmodels/seletor_coordenada_viewmodel.dart';
 

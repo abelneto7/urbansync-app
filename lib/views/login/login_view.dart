@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../shared/utils/app_colors.dart';
-import '../../shared/utils/snackbar_utils.dart';
+import '../../shared/theme/app_colors.dart';
+import '../../shared/ui_helpers/snackbar_helper.dart';
 import '../shared_widgets/app_text_widget.dart';
 import '../shared_widgets/custom_text_field_widget.dart';
 import '../../viewmodels/login_viewmodel.dart';
@@ -77,7 +77,7 @@ class _LoginViewState extends State<LoginView>
     if (!mounted) return;
 
     if (success) {
-      SnackbarUtils.showSuccess(context, _viewModel.successMessage!);
+      SnackbarHelper.showSuccess(context, _viewModel.successMessage!);
 
       final authRepo = AuthRepository(AuthService());
       final interdicaoRepo = InterdicaoRepository(InterdicaoService());

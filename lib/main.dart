@@ -3,7 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'models/repositories/auth_repository.dart';
 import 'views/login/login_view.dart';
 import 'models/services/auth_service.dart';
-import 'shared/utils/app_colors.dart';
+import 'shared/theme/app_colors.dart';
 import 'viewmodels/login_viewmodel.dart';
 
 Future<void> main() async {
