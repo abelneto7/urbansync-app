@@ -6,7 +6,7 @@ import '../../models/entities/tipo_interdicao.dart';
 import '../../shared/theme/app_colors.dart';
 import '../../shared/ui_helpers/snackbar_helper.dart';
 import '../shared_widgets/app_text_widget.dart';
-import 'components/tipo_interdicao_widget.dart';
+import '../interdicoes/components/tipo_interdicao_widget.dart';
 import '../../viewmodels/mapa_viewmodel.dart';
 
 const _lagarto = LatLng(-10.9167, -37.6500);

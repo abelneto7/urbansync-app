@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../models/entities/tipo_interdicao.dart';
-import '../../shared/theme/app_colors.dart';
+import '../../../models/entities/tipo_interdicao.dart';
+import '../../../shared/theme/app_colors.dart';
 
 extension TipoInterdicaoUi on TipoInterdicao {
   IconData get icon {
