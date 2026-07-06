@@ -4,6 +4,7 @@ import '../../models/repositories/profile_repository.dart';
 import '../../models/services/profile_service.dart';
 import '../../shared/theme/app_colors.dart';
 import '../../shared/ui_helpers/snackbar_helper.dart';
+import '../../shared/ui_helpers/permission_helper.dart';
 import '../shared_widgets/app_text_widget.dart';
 import '../shared_widgets/custom_text_field_widget.dart';
 import '../../viewmodels/perfil_viewmodel.dart';
@@ -210,7 +211,7 @@ class _FormPerfilViewState extends State<FormPerfilView> {
                     onChanged: (_) =>
                         _formViewModel.togglePermissao(perm.id),
                     title: AppTextWidget(
-                      PerfilFormViewModel.traduzirAcao(perm.name),
+                      PermissionHelper.translateAction(perm.name),
                       color: AppColors.textPrimary,
                     ),
                     activeColor: AppColors.accent,

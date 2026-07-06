@@ -48,16 +48,4 @@ class PerfilFormViewModel extends ChangeNotifier {
     }
     notifyListeners();
   }
-
-  static String traduzirAcao(String permissionName) {
-    final action = permissionName.split('@').last.toLowerCase();
-    const mapa = {
-      'index': 'Listar',
-      'show': 'Visualizar',
-      'store': 'Cadastrar',
-      'update': 'Editar',
-      'destroy': 'Excluir',
-    };
-    return mapa[action] ?? action;
-  }
 }
