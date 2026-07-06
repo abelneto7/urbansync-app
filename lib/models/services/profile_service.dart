@@ -5,6 +5,10 @@ class ProfileService {
     return HttpClient.get('/perfil', token: token);
   }
 
+  Future<Map<String, dynamic>> listarPermissoes(String token) async {
+    return HttpClient.get('/permissao', token: token);
+  }
+
   Future<Map<String, dynamic>> cadastrar({
     required String token,
     required String name,
@@ -22,11 +26,16 @@ class ProfileService {
     required int id,
     required String name,
     String? description,
+    List<int>? permissionIds,
   }) async {
     return HttpClient.put(
       '/perfil/$id',
       token: token,
-      body: {'name': name, 'description': description},
+      body: {
+        'name': name,
+        'description': description,
+        'permission_ids': permissionIds ?? [],
+      },
     );
   }
 

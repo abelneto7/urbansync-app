@@ -1,3 +1,4 @@
+import '../entities/permission.dart';
 import '../entities/profile.dart';
 import '../services/api_service.dart';
 import '../services/profile_service.dart';
@@ -29,11 +30,28 @@ class ProfileRepository {
     }
   }
 
+  Future<Map<String, List<Permission>>> buscarPermissoes(String token) async {
+    try {
+      final body = await _service.listarPermissoes(token);
+      final data = body['data'] as Map<String, dynamic>;
+
+      return data.map((module, rawList) {
+        final perms = (rawList as List<dynamic>)
+            .map((e) => Permission.fromJson(e as Map<String, dynamic>))
+            .toList();
+        return MapEntry(module, perms);
+      });
+    } catch (e) {
+      throw Exception(e.toString().replaceFirst('Exception: ', ''));
+    }
+  }
+
   Future<ApiResponse<Profile>> salvar({
     required String token,
     Profile? profile,
     required String name,
     String? description,
+    List<int>? permissionIds,
   }) async {
     try {
       final Map<String, dynamic> body;
@@ -49,6 +67,7 @@ class ProfileRepository {
           id: profile.id,
           name: name,
           description: description,
+          permissionIds: permissionIds,
         );
       }
 

@@ -36,6 +36,7 @@ class PerfilViewModel extends ChangeNotifier {
     Profile? profile,
     required String name,
     String? description,
+    List<int>? permissionIds,
   }) async {
     try {
       final result = await _profileRepository.salvar(
@@ -43,6 +44,7 @@ class PerfilViewModel extends ChangeNotifier {
         profile: profile,
         name: name,
         description: description,
+        permissionIds: permissionIds,
       );
 
       if (profile == null) {
