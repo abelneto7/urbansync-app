@@ -8,14 +8,17 @@ import '../base/base_view.dart';
 import '../../models/repositories/auth_repository.dart';
 import '../../models/repositories/interdicao_repository.dart';
 import '../../models/repositories/user_repository.dart';
+import '../../models/repositories/profile_repository.dart';
 import '../../models/services/auth_service.dart';
 import '../../models/services/interdicao_service.dart';
 import '../../models/services/user_service.dart';
+import '../../models/services/profile_service.dart';
 import '../../viewmodels/base_viewmodel.dart';
 import '../../viewmodels/home_viewmodel.dart';
 import '../../viewmodels/mapa_viewmodel.dart';
 import '../../viewmodels/interdicoes_viewmodel.dart';
 import '../../viewmodels/usuarios_viewmodel.dart';
+import '../../viewmodels/perfil_viewmodel.dart';
 
 class LoginView extends StatefulWidget {
   final LoginViewModel viewModel;
@@ -82,6 +85,7 @@ class _LoginViewState extends State<LoginView>
       final authRepo = AuthRepository(AuthService());
       final interdicaoRepo = InterdicaoRepository(InterdicaoService());
       final userRepo = UserRepository(UserService());
+      final profileRepo = ProfileRepository(ProfileService());
 
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
@@ -93,6 +97,7 @@ class _LoginViewState extends State<LoginView>
             mapaViewModel: MapaViewModel(interdicaoRepo),
             interdicoesViewModel: InterdicoesViewModel(interdicaoRepo),
             usuariosViewModel: UsuariosViewModel(userRepo),
+            perfilViewModel: PerfilViewModel(profileRepo),
           ),
           transitionsBuilder: (context, anim, a2, child) =>
               FadeTransition(opacity: anim, child: child),
