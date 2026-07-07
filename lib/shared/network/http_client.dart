@@ -31,6 +31,17 @@ class HttpClient {
     return _processResponse(response);
   }
 
+  static Future<Map<String, dynamic>> put(String endpoint, {String? token, Map<String, dynamic>? body}) async {
+    final uri = Uri.parse('${ApiService.baseUrl}$endpoint');
+    final response = await http.put(
+      uri,
+      headers: token != null ? ApiService.authHeaders(token) : ApiService.defaultHeaders,
+      body: body != null ? jsonEncode(body) : null,
+    );
+    return _processResponse(response);
+  }
+
+
   static Map<String, dynamic> _processResponse(http.Response response) {
     Map<String, dynamic> body;
     try {

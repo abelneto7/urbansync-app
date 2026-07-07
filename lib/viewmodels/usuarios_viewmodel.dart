@@ -45,9 +45,35 @@ class UsuariosViewModel extends ChangeNotifier {
       throw Exception(e.toString().replaceFirst('Exception: ', ''));
     }
   }
+  Future<String?> saveUsuario({
+    required String token,
+    User? usuario,
+    required String nome,
+    required String email,
+    String? password,
+    required List<int> profileIds,
+  }) async {
+    try {
+      final result = await _userRepository.salvar(
+        token: token,
+        usuario: usuario,
+        nome: nome,
+        email: email,
+        password: password,
+        profileIds: profileIds,
+      );
 
-  void adicionarUsuarioLocal(User usuario) {
-    _usuarios.insert(0, usuario);
-    notifyListeners();
+      if (usuario == null) {
+        _usuarios.insert(0, result.data);
+      } else {
+        final index = _usuarios.indexWhere((u) => u.id == usuario.id);
+        if (index != -1) _usuarios[index] = result.data;
+      }
+
+      notifyListeners();
+      return result.message;
+    } catch (e) {
+      throw Exception(e.toString().replaceFirst('Exception: ', ''));
+    }
   }
 }

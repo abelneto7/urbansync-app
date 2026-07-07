@@ -8,6 +8,7 @@ import '../../viewmodels/interdicoes_viewmodel.dart';
 import '../../viewmodels/cadastro_interdicao_viewmodel.dart';
 import '../../models/repositories/interdicao_repository.dart';
 import '../../models/services/interdicao_service.dart';
+import '../../shared/ui_helpers/can_access_widget.dart';
 import 'cadastro_interdicao_view.dart';
 
 class InterdicoesView extends StatefulWidget {
@@ -88,12 +89,15 @@ class _InterdicoesViewState extends State<InterdicoesView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'fab_interdicoes',
-        onPressed: _irParaCadastro,
-        backgroundColor: AppColors.accent,
-        icon: const Icon(Icons.add_rounded, color: AppColors.textOnAccent),
-        label: const AppTextWidget('Nova', fontWeight: FontWeight.bold, color: AppColors.textOnAccent),
+      floatingActionButton: CanAccessWidget(
+        permission: 'InterdicaoController@store',
+        child: FloatingActionButton.extended(
+          heroTag: 'fab_interdicoes',
+          onPressed: _irParaCadastro,
+          backgroundColor: AppColors.accent,
+          icon: const Icon(Icons.add_rounded, color: AppColors.textOnAccent),
+          label: const AppTextWidget('Nova', fontWeight: FontWeight.bold, color: AppColors.textOnAccent),
+        ),
       ),
       body: _buildBody(),
     );
