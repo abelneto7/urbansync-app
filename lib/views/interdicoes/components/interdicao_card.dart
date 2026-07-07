@@ -3,6 +3,7 @@ import '../../../models/entities/interdicao.dart';
 import '../../../shared/theme/app_colors.dart';
 import '../../shared_widgets/app_text_widget.dart';
 import '../../shared_widgets/botao_remover_widget.dart';
+import '../../../shared/ui_helpers/can_access_widget.dart';
 import 'tipo_interdicao_widget.dart';
 
 class InterdicaoCardWidget extends StatelessWidget {
@@ -111,7 +112,10 @@ class InterdicaoCardWidget extends StatelessWidget {
             ),
 
             const SizedBox(width: 8),
-            BotaoRemoverWidget(onPressed: onRemover),
+            CanAccessWidget(
+              permission: 'InterdicaoController@destroy',
+              child: BotaoRemoverWidget(onPressed: onRemover),
+            ),
           ],
         ),
       ),

@@ -5,6 +5,7 @@ import '../../shared/ui_helpers/snackbar_helper.dart';
 import '../shared_widgets/app_text_widget.dart';
 import '../shared_widgets/botao_remover_widget.dart';
 import '../../viewmodels/usuarios_viewmodel.dart';
+import '../../shared/ui_helpers/can_access_widget.dart';
 import 'form_usuario_view.dart';
 
 class UsuariosView extends StatefulWidget {
@@ -82,12 +83,15 @@ class _UsuariosViewState extends State<UsuariosView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'fab_usuarios',
-        onPressed: () => _irParaFormulario(),
-        backgroundColor: AppColors.accent,
-        icon: const Icon(Icons.person_add_rounded, color: AppColors.textOnAccent),
-        label: const AppTextWidget('Novo', fontWeight: FontWeight.bold, color: AppColors.textOnAccent),
+      floatingActionButton: CanAccessWidget(
+        permission: 'UserController@store',
+        child: FloatingActionButton.extended(
+          heroTag: 'fab_usuarios',
+          onPressed: () => _irParaFormulario(),
+          backgroundColor: AppColors.accent,
+          icon: const Icon(Icons.person_add_rounded, color: AppColors.textOnAccent),
+          label: const AppTextWidget('Novo', fontWeight: FontWeight.bold, color: AppColors.textOnAccent),
+        ),
       ),
       body: _buildBody(),
     );
@@ -163,14 +167,20 @@ class _UsuariosViewState extends State<UsuariosView> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit_rounded, color: AppColors.accent, size: 22),
-                          tooltip: 'Editar usuário',
-                          onPressed: () => _irParaFormulario(usuario: usuario),
+                        CanAccessWidget(
+                          permission: 'UserController@update',
+                          child: IconButton(
+                            icon: const Icon(Icons.edit_rounded, color: AppColors.accent, size: 22),
+                            tooltip: 'Editar usuário',
+                            onPressed: () => _irParaFormulario(usuario: usuario),
+                          ),
                         ),
-                        BotaoRemoverWidget(
-                          tooltip: 'Remover usuário',
-                          onPressed: () => _removerUsuario(usuario),
+                        CanAccessWidget(
+                          permission: 'UserController@destroy',
+                          child: BotaoRemoverWidget(
+                            tooltip: 'Remover usuário',
+                            onPressed: () => _removerUsuario(usuario),
+                          ),
                         ),
                       ],
                     ),

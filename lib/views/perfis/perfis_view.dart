@@ -4,6 +4,7 @@ import '../../shared/theme/app_colors.dart';
 import '../../shared/ui_helpers/snackbar_helper.dart';
 import '../shared_widgets/app_text_widget.dart';
 import '../../viewmodels/perfil_viewmodel.dart';
+import '../../shared/ui_helpers/can_access_widget.dart';
 import 'form_perfil_view.dart';
 
 class PerfisView extends StatefulWidget {
@@ -81,15 +82,18 @@ class _PerfisViewState extends State<PerfisView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'fab_perfis',
-        onPressed: () => _irParaFormulario(),
-        backgroundColor: AppColors.accent,
-        icon: const Icon(Icons.add_rounded, color: AppColors.textOnAccent),
-        label: const AppTextWidget(
-          'Novo',
-          fontWeight: FontWeight.bold,
-          color: AppColors.textOnAccent,
+      floatingActionButton: CanAccessWidget(
+        permission: 'ProfileController@store',
+        child: FloatingActionButton.extended(
+          heroTag: 'fab_perfis',
+          onPressed: () => _irParaFormulario(),
+          backgroundColor: AppColors.accent,
+          icon: const Icon(Icons.add_rounded, color: AppColors.textOnAccent),
+          label: const AppTextWidget(
+            'Novo',
+            fontWeight: FontWeight.bold,
+            color: AppColors.textOnAccent,
+          ),
         ),
       ),
       body: _buildBody(),
@@ -161,15 +165,21 @@ class _PerfisViewState extends State<PerfisView> {
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit_outlined, color: AppColors.accent, size: 20),
-                        tooltip: 'Editar perfil',
-                        onPressed: () => _irParaFormulario(perfil: perfil),
+                      CanAccessWidget(
+                        permission: 'ProfileController@update',
+                        child: IconButton(
+                          icon: const Icon(Icons.edit_outlined, color: AppColors.accent, size: 20),
+                          tooltip: 'Editar perfil',
+                          onPressed: () => _irParaFormulario(perfil: perfil),
+                        ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.delete_outline_rounded, color: AppColors.error, size: 20),
-                        tooltip: 'Remover perfil',
-                        onPressed: () => _removerPerfil(perfil),
+                      CanAccessWidget(
+                        permission: 'ProfileController@destroy',
+                        child: IconButton(
+                          icon: const Icon(Icons.delete_outline_rounded, color: AppColors.error, size: 20),
+                          tooltip: 'Remover perfil',
+                          onPressed: () => _removerPerfil(perfil),
+                        ),
                       ),
                     ],
                   ),

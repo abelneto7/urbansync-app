@@ -18,6 +18,7 @@ import '../../viewmodels/perfil_viewmodel.dart';
 import '../../models/repositories/auth_repository.dart';
 import '../../models/services/auth_service.dart';
 import '../../viewmodels/login_viewmodel.dart';
+import '../../shared/ui_helpers/can_access_widget.dart';
 
 class BaseView extends StatefulWidget {
   final String token;
@@ -137,41 +138,53 @@ class _BaseViewState extends State<BaseView> {
                   selected: currentIndex == 0,
                   onTap: () => _onItemTapped(0),
                 ),
-                ListTile(
-                  leading: Icon(Icons.map_rounded,
-                      color: currentIndex == 1 ? AppColors.accent : AppColors.textMuted),
-                  title: AppTextWidget('Mapa',
-                      color: currentIndex == 1 ? AppColors.accent : AppColors.textPrimary,
-                      fontWeight: currentIndex == 1 ? FontWeight.bold : FontWeight.normal),
-                  selected: currentIndex == 1,
-                  onTap: () => _onItemTapped(1),
+                CanAccessWidget(
+                  permission: 'InterdicaoController@index',
+                  child: ListTile(
+                    leading: Icon(Icons.map_rounded,
+                        color: currentIndex == 1 ? AppColors.accent : AppColors.textMuted),
+                    title: AppTextWidget('Mapa',
+                        color: currentIndex == 1 ? AppColors.accent : AppColors.textPrimary,
+                        fontWeight: currentIndex == 1 ? FontWeight.bold : FontWeight.normal),
+                    selected: currentIndex == 1,
+                    onTap: () => _onItemTapped(1),
+                  ),
                 ),
-                ListTile(
-                  leading: Icon(Icons.list_alt_rounded,
-                      color: currentIndex == 2 ? AppColors.accent : AppColors.textMuted),
-                  title: AppTextWidget('Interdições',
-                      color: currentIndex == 2 ? AppColors.accent : AppColors.textPrimary,
-                      fontWeight: currentIndex == 2 ? FontWeight.bold : FontWeight.normal),
-                  selected: currentIndex == 2,
-                  onTap: () => _onItemTapped(2),
+                CanAccessWidget(
+                  permission: 'InterdicaoController@index',
+                  child: ListTile(
+                    leading: Icon(Icons.list_alt_rounded,
+                        color: currentIndex == 2 ? AppColors.accent : AppColors.textMuted),
+                    title: AppTextWidget('Interdições',
+                        color: currentIndex == 2 ? AppColors.accent : AppColors.textPrimary,
+                        fontWeight: currentIndex == 2 ? FontWeight.bold : FontWeight.normal),
+                    selected: currentIndex == 2,
+                    onTap: () => _onItemTapped(2),
+                  ),
                 ),
-                ListTile(
-                  leading: Icon(Icons.people_alt_rounded,
-                      color: currentIndex == 3 ? AppColors.accent : AppColors.textMuted),
-                  title: AppTextWidget('Usuários',
-                      color: currentIndex == 3 ? AppColors.accent : AppColors.textPrimary,
-                      fontWeight: currentIndex == 3 ? FontWeight.bold : FontWeight.normal),
-                  selected: currentIndex == 3,
-                  onTap: () => _onItemTapped(3),
+                CanAccessWidget(
+                  permission: 'UserController@index',
+                  child: ListTile(
+                    leading: Icon(Icons.people_alt_rounded,
+                        color: currentIndex == 3 ? AppColors.accent : AppColors.textMuted),
+                    title: AppTextWidget('Usuários',
+                        color: currentIndex == 3 ? AppColors.accent : AppColors.textPrimary,
+                        fontWeight: currentIndex == 3 ? FontWeight.bold : FontWeight.normal),
+                    selected: currentIndex == 3,
+                    onTap: () => _onItemTapped(3),
+                  ),
                 ),
-                ListTile(
-                  leading: Icon(Icons.shield_outlined,
-                      color: currentIndex == 4 ? AppColors.accent : AppColors.textMuted),
-                  title: AppTextWidget('Perfis',
-                      color: currentIndex == 4 ? AppColors.accent : AppColors.textPrimary,
-                      fontWeight: currentIndex == 4 ? FontWeight.bold : FontWeight.normal),
-                  selected: currentIndex == 4,
-                  onTap: () => _onItemTapped(4),
+                CanAccessWidget(
+                  permission: 'ProfileController@index',
+                  child: ListTile(
+                    leading: Icon(Icons.shield_outlined,
+                        color: currentIndex == 4 ? AppColors.accent : AppColors.textMuted),
+                    title: AppTextWidget('Perfis',
+                        color: currentIndex == 4 ? AppColors.accent : AppColors.textPrimary,
+                        fontWeight: currentIndex == 4 ? FontWeight.bold : FontWeight.normal),
+                    selected: currentIndex == 4,
+                    onTap: () => _onItemTapped(4),
+                  ),
                 ),
               ],
             ),

@@ -7,6 +7,7 @@ class User {
   final String? criadoEm;
   final String? atualizadoEm;
   final List<Profile>? perfis;
+  final List<String> permissoes;
 
   User({
     required this.id,
@@ -15,6 +16,7 @@ class User {
     this.criadoEm,
     this.atualizadoEm,
     this.perfis,
+    this.permissoes = const [],
   });
 
   List<int> get profileIds => perfis?.map((p) => p.id).toList() ?? [];
@@ -29,6 +31,8 @@ class User {
           .toList();
     }
 
+    final rawPermissoes = json['permissoes'] as List<dynamic>? ?? [];
+
     return User(
       id: json['id'] as int? ?? 0,
       nome: json['name'] as String? ?? json['nome'] as String? ?? '',
@@ -36,6 +40,7 @@ class User {
       criadoEm: json['criado_em'] as String?,
       atualizadoEm: json['atualizado_em'] as String?,
       perfis: perfisParsed,
+      permissoes: rawPermissoes.map((e) => e.toString()).toList(),
     );
   }
 
