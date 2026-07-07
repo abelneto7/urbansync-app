@@ -53,25 +53,29 @@ class CadastroInterdicaoViewModel extends ChangeNotifier {
     _successMessage = null;
     notifyListeners();
 
-    try {
-      final response = await _interdicaoRepository.cadastrar(
-        token: token,
-        titulo: titulo,
-        descricao: descricao,
-        latitude: latitude,
-        longitude: longitude,
-        tipo: _tipoSelecionado,
-        status: _statusAtivo,
-      );
+    final result = await _interdicaoRepository.cadastrar(
+      token: token,
+      titulo: titulo,
+      descricao: descricao,
+      latitude: latitude,
+      longitude: longitude,
+      tipo: _tipoSelecionado,
+      status: _statusAtivo,
+    );
 
-      _successMessage = response.message;
-      return response.data;
-    } catch (e) {
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
-      return null;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+    final interdicao = result.when(
+      success: (response) {
+        _successMessage = response.message;
+        return response.interdicao;
+      },
+      failure: (error) {
+        _errorMessage = error.message;
+        return null;
+      },
+    );
+
+    _isLoading = false;
+    notifyListeners();
+    return interdicao;
   }
 }

@@ -27,16 +27,18 @@ class HomeViewModel extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
 
-    try {
-      final lista = await _interdicaoRepository.listar(token);
-      _obras = lista.where((i) => i.tipo == TipoInterdicao.obra.value).length;
-      _eventos = lista.where((i) => i.tipo == TipoInterdicao.evento.value).length;
-      _acidentes = lista.where((i) => i.tipo == TipoInterdicao.acidente.value).length;
-    } catch (e) {
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+    final result = await _interdicaoRepository.listar(token);
+
+    result.when(
+      success: (lista) {
+        _obras    = lista.where((i) => i.tipo == TipoInterdicao.obra.value).length;
+        _eventos  = lista.where((i) => i.tipo == TipoInterdicao.evento.value).length;
+        _acidentes = lista.where((i) => i.tipo == TipoInterdicao.acidente.value).length;
+      },
+      failure: (error) => _errorMessage = error.message,
+    );
+
+    _isLoading = false;
+    notifyListeners();
   }
 }

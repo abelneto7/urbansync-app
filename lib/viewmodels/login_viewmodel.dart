@@ -29,23 +29,25 @@ class LoginViewModel extends ChangeNotifier {
     _successMessage = null;
     notifyListeners();
 
-    try {
-      final result = await _authRepository.login(email, password);
+    final result = await _authRepository.login(email, password);
 
-      _token = result['access_token'] as String;
-      _usuario = result['usuario'] as User;
-      _successMessage = result['message'] as String;
+    final success = result.when(
+      success: (response) {
+        _token = response.accessToken;
+        _usuario = response.usuario;
+        _successMessage = response.message;
+        AuthSession.instance.setUser(response.usuario);
+        return true;
+      },
+      failure: (error) {
+        _errorMessage = error.message;
+        return false;
+      },
+    );
 
-      AuthSession.instance.setUser(_usuario!);
-
-      return true;
-    } catch (e) {
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
-      return false;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+    _isLoading = false;
+    notifyListeners();
+    return success;
   }
 
   void clearError() {

@@ -30,14 +30,15 @@ class PerfilFormViewModel extends ChangeNotifier {
     _permissoesError = null;
     notifyListeners();
 
-    try {
-      _permissoesAgrupadas = await _repository.buscarPermissoes(token);
-    } catch (e) {
-      _permissoesError = e.toString().replaceFirst('Exception: ', '');
-    } finally {
-      _isLoadingPermissoes = false;
-      notifyListeners();
-    }
+    final result = await _repository.buscarPermissoes(token);
+
+    result.when(
+      success: (permissoes) => _permissoesAgrupadas = permissoes,
+      failure: (error) => _permissoesError = error.message,
+    );
+
+    _isLoadingPermissoes = false;
+    notifyListeners();
   }
 
   void togglePermissao(int id) {

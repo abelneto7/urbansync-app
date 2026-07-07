@@ -23,15 +23,15 @@ class MapaViewModel extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
 
-    try {
-      final lista = await _interdicaoRepository.listar(token);
-      _markers = lista.map((i) => _buildMarker(i)).toSet();
-    } catch (e) {
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+    final result = await _interdicaoRepository.listar(token);
+
+    result.when(
+      success: (lista) => _markers = lista.map(_buildMarker).toSet(),
+      failure: (error) => _errorMessage = error.message,
+    );
+
+    _isLoading = false;
+    notifyListeners();
   }
 
   Marker _buildMarker(Interdicao i) {

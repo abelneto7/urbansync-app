@@ -31,14 +31,15 @@ class UsuarioFormViewModel extends ChangeNotifier {
     _profilesError = null;
     notifyListeners();
 
-    try {
-      _availableProfiles = await _profileRepository.listar(token);
-    } catch (e) {
-      _profilesError = e.toString().replaceFirst('Exception: ', '');
-    } finally {
-      _isLoadingProfiles = false;
-      notifyListeners();
-    }
+    final result = await _profileRepository.listar(token);
+
+    result.when(
+      success: (profiles) => _availableProfiles = profiles,
+      failure: (error) => _profilesError = error.message,
+    );
+
+    _isLoadingProfiles = false;
+    notifyListeners();
   }
 
   void toggleProfile(int id) {

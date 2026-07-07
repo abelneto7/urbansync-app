@@ -17,10 +17,10 @@ class BaseViewModel extends ChangeNotifier {
   }
 
   Future<String> logout(String token) async {
-    try {
-      return await _authRepository.logout(token);
-    } catch (e) {
-      return e.toString().replaceFirst('Exception: ', '');
-    }
+    final result = await _authRepository.logout(token);
+    return result.when(
+      success: (message) => message,
+      failure: (error) => error.message,
+    );
   }
 }

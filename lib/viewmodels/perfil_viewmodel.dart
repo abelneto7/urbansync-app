@@ -21,16 +21,17 @@ class PerfilViewModel extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
 
-    try {
-      _perfis = await _profileRepository.listar(token);
-    } catch (e) {
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
+    final result = await _profileRepository.listar(token);
 
+    result.when(
+      success: (lista) => _perfis = lista,
+      failure: (error) => _errorMessage = error.message,
+    );
+
+    _isLoading = false;
+    notifyListeners();
+  }
+  
   Future<String?> saveProfile(
     String token, {
     Profile? profile,
@@ -38,37 +39,47 @@ class PerfilViewModel extends ChangeNotifier {
     String? description,
     List<int>? permissionIds,
   }) async {
-    try {
-      final result = await _profileRepository.salvar(
-        token: token,
-        profile: profile,
-        name: name,
-        description: description,
-        permissionIds: permissionIds,
-      );
+    final result = await _profileRepository.salvar(
+      token: token,
+      profile: profile,
+      name: name,
+      description: description,
+      permissionIds: permissionIds,
+    );
 
-      if (profile == null) {
-        _perfis.insert(0, result.data);
-      } else {
-        final index = _perfis.indexWhere((p) => p.id == profile.id);
-        if (index != -1) _perfis[index] = result.data;
-      }
-
-      notifyListeners();
-      return result.message;
-    } catch (e) {
-      throw Exception(e.toString().replaceFirst('Exception: ', ''));
-    }
+    return result.when(
+      success: (response) {
+        if (profile == null) {
+          _perfis.insert(0, response.profile);
+        } else {
+          final index = _perfis.indexWhere((p) => p.id == profile.id);
+          if (index != -1) _perfis[index] = response.profile;
+        }
+        notifyListeners();
+        return response.message;
+      },
+      failure: (error) {
+        _errorMessage = error.message;
+        notifyListeners();
+        return null;
+      },
+    );
   }
 
   Future<String?> deleteProfile(String token, int id) async {
-    try {
-      final message = await _profileRepository.remover(token: token, id: id);
-      _perfis.removeWhere((p) => p.id == id);
-      notifyListeners();
-      return message;
-    } catch (e) {
-      throw Exception(e.toString().replaceFirst('Exception: ', ''));
-    }
+    final result = await _profileRepository.remover(token: token, id: id);
+
+    return result.when(
+      success: (message) {
+        _perfis.removeWhere((p) => p.id == id);
+        notifyListeners();
+        return message;
+      },
+      failure: (error) {
+        _errorMessage = error.message;
+        notifyListeners();
+        return null;
+      },
+    );
   }
 }

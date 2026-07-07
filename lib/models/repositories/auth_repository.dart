@@ -1,40 +1,38 @@
 import '../entities/user.dart';
 import '../services/auth_service.dart';
+import '../dtos/login_response.dart';
+import '../../shared/result.dart';
 
 class AuthRepository {
   final AuthService _service;
 
   AuthRepository(this._service);
 
-  Future<Map<String, dynamic>> login(String email, String password) async {
-    try {
-      final body = await _service.login(email, password);
+  Future<Result<LoginResponse>> login(String email, String password) async {
+    final result = await _service.login(email, password);
+
+    return result.map((body) {
       final data = body['data'] as Map<String, dynamic>;
-      return {
-        'access_token': data['access_token'] as String,
-        'usuario': User.fromJson(data['usuario'] as Map<String, dynamic>),
-        'message': body['message'] as String? ?? 'Login realizado com sucesso.',
-      };
-    } catch (e) {
-      throw Exception(e.toString().replaceFirst('Exception: ', ''));
-    }
+      return LoginResponse(
+        accessToken: data['access_token'] as String,
+        usuario: User.fromJson(data['usuario'] as Map<String, dynamic>),
+        message:
+            body['message'] as String? ?? 'Login realizado com sucesso.',
+      );
+    });
   }
 
-  Future<User> me(String token) async {
-    try {
-      final body = await _service.me(token);
-      return User.fromJson(body['data'] as Map<String, dynamic>);
-    } catch (e) {
-      throw Exception(e.toString().replaceFirst('Exception: ', ''));
-    }
+  Future<Result<User>> me(String token) async {
+    final result = await _service.me(token);
+    return result.map(
+      (body) => User.fromJson(body['data'] as Map<String, dynamic>),
+    );
   }
 
-  Future<String> logout(String token) async {
-    try {
-      final body = await _service.logout(token);
-      return body['message'] as String? ?? 'Sessão encerrada.';
-    } catch (e) {
-      throw Exception(e.toString().replaceFirst('Exception: ', ''));
-    }
+  Future<Result<String>> logout(String token) async {
+    final result = await _service.logout(token);
+    return result.map(
+      (body) => body['message'] as String? ?? 'Sessão encerrada.',
+    );
   }
 }

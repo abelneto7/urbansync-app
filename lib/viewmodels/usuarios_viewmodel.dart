@@ -21,30 +21,37 @@ class UsuariosViewModel extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
 
-    try {
-      final lista = await _userRepository.listar(token);
-      _usuarios = lista;
-    } catch (e) {
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+    final result = await _userRepository.listar(token);
+
+    result.when(
+      success: (lista) => _usuarios = lista,
+      failure: (error) => _errorMessage = error.message,
+    );
+
+    _isLoading = false;
+    notifyListeners();
   }
 
   Future<String?> removerUsuario(String token, User usuario) async {
-    try {
-      final message = await _userRepository.remover(
-        token: token,
-        id: usuario.id,
-      );
-      _usuarios.removeWhere((i) => i.id == usuario.id);
-      notifyListeners();
-      return message;
-    } catch (e) {
-      throw Exception(e.toString().replaceFirst('Exception: ', ''));
-    }
+    final result = await _userRepository.remover(
+      token: token,
+      id: usuario.id,
+    );
+
+    return result.when(
+      success: (message) {
+        _usuarios.removeWhere((i) => i.id == usuario.id);
+        notifyListeners();
+        return message;
+      },
+      failure: (error) {
+        _errorMessage = error.message;
+        notifyListeners();
+        return null;
+      },
+    );
   }
+
   Future<String?> saveUsuario({
     required String token,
     User? usuario,
@@ -53,27 +60,31 @@ class UsuariosViewModel extends ChangeNotifier {
     String? password,
     required List<int> profileIds,
   }) async {
-    try {
-      final result = await _userRepository.salvar(
-        token: token,
-        usuario: usuario,
-        nome: nome,
-        email: email,
-        password: password,
-        profileIds: profileIds,
-      );
+    final result = await _userRepository.salvar(
+      token: token,
+      usuario: usuario,
+      nome: nome,
+      email: email,
+      password: password,
+      profileIds: profileIds,
+    );
 
-      if (usuario == null) {
-        _usuarios.insert(0, result.data);
-      } else {
-        final index = _usuarios.indexWhere((u) => u.id == usuario.id);
-        if (index != -1) _usuarios[index] = result.data;
-      }
-
-      notifyListeners();
-      return result.message;
-    } catch (e) {
-      throw Exception(e.toString().replaceFirst('Exception: ', ''));
-    }
+    return result.when(
+      success: (response) {
+        if (usuario == null) {
+          _usuarios.insert(0, response.user);
+        } else {
+          final index = _usuarios.indexWhere((u) => u.id == usuario.id);
+          if (index != -1) _usuarios[index] = response.user;
+        }
+        notifyListeners();
+        return response.message;
+      },
+      failure: (error) {
+        _errorMessage = error.message;
+        notifyListeners();
+        return null;
+      },
+    );
   }
 }

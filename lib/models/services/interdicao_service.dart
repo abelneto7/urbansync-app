@@ -1,11 +1,12 @@
 import '../../shared/network/http_client.dart';
+import '../../shared/result.dart';
 
 class InterdicaoService {
-  Future<Map<String, dynamic>> listar(String token) async {
+  Future<Result<Map<String, dynamic>>> listar(String token) {
     return HttpClient.get('/interdicao', token: token);
   }
 
-  Future<Map<String, dynamic>> cadastrar({
+  Future<Result<Map<String, dynamic>>> cadastrar({
     required String token,
     required String titulo,
     String? descricao,
@@ -13,7 +14,7 @@ class InterdicaoService {
     required double longitude,
     required int tipo,
     required bool status,
-  }) async {
+  }) {
     final payload = <String, dynamic>{
       'titulo': titulo,
       'latitude': latitude,
@@ -27,10 +28,10 @@ class InterdicaoService {
     return HttpClient.post('/interdicao', token: token, body: payload);
   }
 
-  Future<Map<String, dynamic>> remover({
+  Future<Result<Map<String, dynamic>>> remover({
     required String token,
     required int id,
-  }) async {
+  }) {
     return HttpClient.delete('/interdicao/$id', token: token);
   }
 }

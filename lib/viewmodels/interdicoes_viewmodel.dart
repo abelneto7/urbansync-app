@@ -21,29 +21,35 @@ class InterdicoesViewModel extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
 
-    try {
-      final lista = await _interdicaoRepository.listar(token);
-      _interdicoes = lista;
-    } catch (e) {
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+    final result = await _interdicaoRepository.listar(token);
+
+    result.when(
+      success: (lista) => _interdicoes = lista,
+      failure: (error) => _errorMessage = error.message,
+    );
+
+    _isLoading = false;
+    notifyListeners();
   }
 
   Future<String?> removerInterdicao(String token, Interdicao interdicao) async {
-    try {
-      final message = await _interdicaoRepository.remover(
-        token: token,
-        id: interdicao.id,
-      );
-      _interdicoes.removeWhere((i) => i.id == interdicao.id);
-      notifyListeners();
-      return message;
-    } catch (e) {
-      throw Exception(e.toString().replaceFirst('Exception: ', ''));
-    }
+    final result = await _interdicaoRepository.remover(
+      token: token,
+      id: interdicao.id,
+    );
+
+    return result.when(
+      success: (message) {
+        _interdicoes.removeWhere((i) => i.id == interdicao.id);
+        notifyListeners();
+        return message;
+      },
+      failure: (error) {
+        _errorMessage = error.message;
+        notifyListeners();
+        return null;
+      },
+    );
   }
 
   void adicionarInterdicaoLocal(Interdicao interdicao) {
