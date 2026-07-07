@@ -5,10 +5,8 @@ import '../../shared/ui_helpers/snackbar_helper.dart';
 import '../shared_widgets/app_text_widget.dart';
 import '../shared_widgets/botao_remover_widget.dart';
 import '../../viewmodels/usuarios_viewmodel.dart';
-import '../../viewmodels/cadastro_usuario_viewmodel.dart';
-import '../../models/repositories/user_repository.dart';
-import '../../models/services/user_service.dart';
-import 'cadastro_usuario_view.dart';
+import '../../shared/ui_helpers/can_access_widget.dart';
+import 'form_usuario_view.dart';
 
 class UsuariosView extends StatefulWidget {
   final String token;
@@ -69,31 +67,31 @@ class _UsuariosViewState extends State<UsuariosView> {
     }
   }
 
-  Future<void> _irParaCadastro() async {
-    final novoUser = await Navigator.of(context).push<User>(
+  Future<void> _irParaFormulario({User? usuario}) async {
+    await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => CadastroUsuarioView(
+        builder: (_) => FormUsuarioView(
           token: widget.token,
-          viewModel: CadastroUsuarioViewModel(UserRepository(UserService())),
+          usuario: usuario,
+          viewModel: widget.viewModel,
         ),
       ),
     );
-
-    if (novoUser != null) {
-      widget.viewModel.adicionarUsuarioLocal(novoUser);
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'fab_usuarios',
-        onPressed: _irParaCadastro,
-        backgroundColor: AppColors.accent,
-        icon: const Icon(Icons.person_add_rounded, color: AppColors.textOnAccent),
-        label: const AppTextWidget('Novo', fontWeight: FontWeight.bold, color: AppColors.textOnAccent),
+      floatingActionButton: CanAccessWidget(
+        permission: 'UserController@store',
+        child: FloatingActionButton.extended(
+          heroTag: 'fab_usuarios',
+          onPressed: () => _irParaFormulario(),
+          backgroundColor: AppColors.accent,
+          icon: const Icon(Icons.person_add_rounded, color: AppColors.textOnAccent),
+          label: const AppTextWidget('Novo', fontWeight: FontWeight.bold, color: AppColors.textOnAccent),
+        ),
       ),
       body: _buildBody(),
     );
@@ -151,7 +149,7 @@ class _UsuariosViewState extends State<UsuariosView> {
                     CircleAvatar(
                       backgroundColor: AppColors.accent.withValues(alpha: 0.2),
                       child: AppTextWidget.subtitulo(
-                        usuario.nome.substring(0, 1).toUpperCase(),
+                        usuario.nome.isNotEmpty ? usuario.nome.substring(0, 1).toUpperCase() : 'U',
                         color: AppColors.accent,
                       ),
                     ),
@@ -166,9 +164,25 @@ class _UsuariosViewState extends State<UsuariosView> {
                         ],
                       ),
                     ),
-                    BotaoRemoverWidget(
-                      tooltip: 'Remover usuário',
-                      onPressed: () => _removerUsuario(usuario),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CanAccessWidget(
+                          permission: 'UserController@update',
+                          child: IconButton(
+                            icon: const Icon(Icons.edit_rounded, color: AppColors.accent, size: 22),
+                            tooltip: 'Editar usuário',
+                            onPressed: () => _irParaFormulario(usuario: usuario),
+                          ),
+                        ),
+                        CanAccessWidget(
+                          permission: 'UserController@destroy',
+                          child: BotaoRemoverWidget(
+                            tooltip: 'Remover usuário',
+                            onPressed: () => _removerUsuario(usuario),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

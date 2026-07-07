@@ -29,22 +29,41 @@ class UserRepository {
     }
   }
 
-  Future<ApiResponse<User>> cadastrar({
+  Future<ApiResponse<User>> salvar({
     required String token,
+    User? usuario,
     required String nome,
     required String email,
-    required String password,
+    String? password,
+    required List<int> profileIds,
   }) async {
     try {
-      final body = await _service.cadastrar(
-        token: token,
-        nome: nome,
-        email: email,
-        password: password,
-      );
+      final Map<String, dynamic> body;
+      if (usuario == null) {
+        body = await _service.cadastrar(
+          token: token,
+          nome: nome,
+          email: email,
+          password: password ?? '',
+          profileIds: profileIds,
+        );
+      } else {
+        body = await _service.atualizar(
+          token: token,
+          id: usuario.id,
+          nome: nome,
+          email: email,
+          password: password,
+          profileIds: profileIds,
+        );
+      }
+
       return ApiResponse<User>(
         data: User.fromJson(body['data'] as Map<String, dynamic>),
-        message: body['message'] as String? ?? 'Usuário cadastrado com sucesso.',
+        message: body['message'] as String? ??
+            (usuario == null
+                ? 'Usuário cadastrado com sucesso.'
+                : 'Usuário atualizado com sucesso.'),
       );
     } catch (e) {
       throw Exception(e.toString().replaceFirst('Exception: ', ''));

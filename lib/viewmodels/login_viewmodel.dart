@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../models/repositories/auth_repository.dart';
 import '../models/entities/user.dart';
+import '../shared/config/auth_session.dart';
 
 class LoginViewModel extends ChangeNotifier {
   final AuthRepository _authRepository;
@@ -34,6 +35,8 @@ class LoginViewModel extends ChangeNotifier {
       _token = result['access_token'] as String;
       _usuario = result['usuario'] as User;
       _successMessage = result['message'] as String;
+
+      AuthSession.instance.setUser(_usuario!);
 
       return true;
     } catch (e) {
