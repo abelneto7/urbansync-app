@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../models/entities/interdicao.dart';
 import '../../shared/theme/app_colors.dart';
+import '../../shared/ui_helpers/can_access_widget.dart';
 import '../../shared/ui_helpers/snackbar_helper.dart';
+import '../../viewmodels/interdicoes_viewmodel.dart';
 import '../shared_widgets/app_text_widget.dart';
 import 'components/interdicao_card.dart';
-import '../../viewmodels/interdicoes_viewmodel.dart';
-import '../../viewmodels/cadastro_interdicao_viewmodel.dart';
-import '../../models/repositories/interdicao_repository.dart';
-import '../../models/services/interdicao_service.dart';
-import '../../shared/ui_helpers/can_access_widget.dart';
-import 'cadastro_interdicao_view.dart';
+import 'form_interdicao_view.dart';
 
 class InterdicoesView extends StatefulWidget {
   final String token;
@@ -59,7 +56,8 @@ class _InterdicoesViewState extends State<InterdicoesView> {
     if (confirmar != true) return;
 
     try {
-      final message = await widget.viewModel.removerInterdicao(widget.token, interdicao);
+      final message =
+          await widget.viewModel.removerInterdicao(widget.token, interdicao);
       if (mounted && message != null) {
         SnackbarHelper.showSuccess(context, message);
       }
@@ -70,18 +68,22 @@ class _InterdicoesViewState extends State<InterdicoesView> {
     }
   }
 
-  Future<void> _irParaCadastro() async {
+  Future<void> _irParaFormulario({Interdicao? interdicao}) async {
     final resultado = await Navigator.of(context).push<Interdicao>(
       MaterialPageRoute(
-        builder: (_) => CadastroInterdicaoView(
+        builder: (_) => FormInterdicaoView(
           token: widget.token,
-          viewModel: CadastroInterdicaoViewModel(InterdicaoRepository(InterdicaoService())),
+          interdicao: interdicao,
         ),
       ),
     );
 
     if (resultado != null) {
-      widget.viewModel.adicionarInterdicaoLocal(resultado);
+      if (interdicao == null) {
+        widget.viewModel.adicionarInterdicaoLocal(resultado);
+      } else {
+        widget.viewModel.atualizarInterdicaoLocal(resultado);
+      }
     }
   }
 
@@ -93,10 +95,14 @@ class _InterdicoesViewState extends State<InterdicoesView> {
         permission: 'InterdicaoController@store',
         child: FloatingActionButton.extended(
           heroTag: 'fab_interdicoes',
-          onPressed: _irParaCadastro,
+          onPressed: () => _irParaFormulario(),
           backgroundColor: AppColors.accent,
           icon: const Icon(Icons.add_rounded, color: AppColors.textOnAccent),
-          label: const AppTextWidget('Nova', fontWeight: FontWeight.bold, color: AppColors.textOnAccent),
+          label: const AppTextWidget(
+            'Nova',
+            fontWeight: FontWeight.bold,
+            color: AppColors.textOnAccent,
+          ),
         ),
       ),
       body: _buildBody(),
@@ -108,7 +114,9 @@ class _InterdicoesViewState extends State<InterdicoesView> {
       listenable: widget.viewModel,
       builder: (context, _) {
         if (widget.viewModel.isLoading) {
-          return const Center(child: CircularProgressIndicator(color: AppColors.accent));
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.accent),
+          );
         }
 
         if (widget.viewModel.errorMessage != null) {
@@ -116,7 +124,8 @@ class _InterdicoesViewState extends State<InterdicoesView> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.cloud_off_rounded, color: AppColors.textMuted, size: 48),
+                const Icon(Icons.cloud_off_rounded,
+                    color: AppColors.textMuted, size: 48),
                 const SizedBox(height: 16),
                 AppTextWidget.corpo(widget.viewModel.errorMessage!),
                 ElevatedButton(
@@ -130,7 +139,10 @@ class _InterdicoesViewState extends State<InterdicoesView> {
 
         if (widget.viewModel.interdicoes.isEmpty) {
           return const Center(
-            child: AppTextWidget.corpo('Nenhuma interdição cadastrada.', color: AppColors.textMuted),
+            child: AppTextWidget.corpo(
+              'Nenhuma interdição cadastrada.',
+              color: AppColors.textMuted,
+            ),
           );
         }
 
@@ -144,6 +156,7 @@ class _InterdicoesViewState extends State<InterdicoesView> {
               final interdicao = widget.viewModel.interdicoes[index];
               return InterdicaoCardWidget(
                 interdicao: interdicao,
+                onEditar: () => _irParaFormulario(interdicao: interdicao),
                 onRemover: () => _removerInterdicao(interdicao),
               );
             },

@@ -56,4 +56,12 @@ class InterdicoesViewModel extends ChangeNotifier {
     _interdicoes.insert(0, interdicao);
     notifyListeners();
   }
+
+  void atualizarInterdicaoLocal(Interdicao atualizada) {
+    final index = _interdicoes.indexWhere((i) => i.id == atualizada.id);
+    if (index != -1) {
+      _interdicoes[index] = atualizada;
+      notifyListeners();
+    }
+  }
 }

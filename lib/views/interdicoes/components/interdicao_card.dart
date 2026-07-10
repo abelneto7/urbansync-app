@@ -8,11 +8,13 @@ import 'tipo_interdicao_widget.dart';
 
 class InterdicaoCardWidget extends StatelessWidget {
   final Interdicao interdicao;
+  final VoidCallback onEditar;
   final VoidCallback onRemover;
 
   const InterdicaoCardWidget({
     super.key,
     required this.interdicao,
+    required this.onEditar,
     required this.onRemover,
   });
 
@@ -44,6 +46,7 @@ class InterdicaoCardWidget extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ── Ícone do tipo ──────────────────────────────────────────────
             Container(
               width: 44,
               height: 44,
@@ -59,6 +62,7 @@ class InterdicaoCardWidget extends StatelessWidget {
             ),
             const SizedBox(width: 12),
 
+            // ── Conteúdo principal ─────────────────────────────────────────
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,17 +108,35 @@ class InterdicaoCardWidget extends StatelessWidget {
                         '${interdicao.longitude.toStringAsFixed(4)}',
                       ),
                       const Spacer(),
-                      _StatusBadge(ativo: interdicao.status),
+                      _StatusBadge(ativo: interdicao.isAtiva),
                     ],
                   ),
                 ],
               ),
             ),
 
+            // ── Ações ──────────────────────────────────────────────────────
             const SizedBox(width: 8),
-            CanAccessWidget(
-              permission: 'InterdicaoController@destroy',
-              child: BotaoRemoverWidget(onPressed: onRemover),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CanAccessWidget(
+                  permission: 'InterdicaoController@update',
+                  child: IconButton(
+                    tooltip: 'Editar interdição',
+                    icon: const Icon(
+                      Icons.edit_outlined,
+                      size: 18,
+                      color: AppColors.textMuted,
+                    ),
+                    onPressed: onEditar,
+                  ),
+                ),
+                CanAccessWidget(
+                  permission: 'InterdicaoController@destroy',
+                  child: BotaoRemoverWidget(onPressed: onRemover),
+                ),
+              ],
             ),
           ],
         ),
@@ -150,8 +172,8 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = ativo ? AppColors.success : AppColors.textMuted;
-    final label = ativo ? 'Ativa' : 'Encerrada';
+    final Color color = ativo ? AppColors.success : AppColors.textMuted;
+    final String label = ativo ? 'Ativa' : 'Encerrada';
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [

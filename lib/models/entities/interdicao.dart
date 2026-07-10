@@ -7,19 +7,23 @@ class Interdicao {
   final double latitude;
   final double longitude;
   final int tipo;
-  final bool status;
+  final DateTime dataInicio;
+  final DateTime? dataFim;
+  final bool isAtiva;
   final int userId;
   final String? criadoEm;
   final String? atualizadoEm;
 
-  Interdicao({
+  const Interdicao({
     required this.id,
     required this.titulo,
     this.descricao,
     required this.latitude,
     required this.longitude,
     required this.tipo,
-    required this.status,
+    required this.dataInicio,
+    this.dataFim,
+    required this.isAtiva,
     required this.userId,
     this.criadoEm,
     this.atualizadoEm,
@@ -33,7 +37,11 @@ class Interdicao {
       latitude: _parseDouble(json['coordenadas']?['latitude'] ?? json['latitude']),
       longitude: _parseDouble(json['coordenadas']?['longitude'] ?? json['longitude']),
       tipo: json['tipo'] as int? ?? 0,
-      status: json['status'] == true || json['status'] == 1,
+      dataInicio: DateTime.parse(json['data_inicio'] as String),
+      dataFim: json['data_fim'] != null
+          ? DateTime.parse(json['data_fim'] as String)
+          : null,
+      isAtiva: json['is_ativa'] as bool? ?? false,
       userId: json['user_id'] as int? ?? 0,
       criadoEm: json['criado_em'] as String?,
       atualizadoEm: json['atualizado_em'] as String?,
@@ -48,11 +56,21 @@ class Interdicao {
     return 0.0;
   }
 
+  static String formatDateTime(DateTime dt) {
+    final y = dt.year.toString().padLeft(4, '0');
+    final mo = dt.month.toString().padLeft(2, '0');
+    final d = dt.day.toString().padLeft(2, '0');
+    final h = dt.hour.toString().padLeft(2, '0');
+    final mi = dt.minute.toString().padLeft(2, '0');
+    final s = dt.second.toString().padLeft(2, '0');
+    return '$y-$mo-$d $h:$mi:$s';
+  }
+
   TipoInterdicao get tipoEnum => TipoInterdicao.fromValue(tipo);
 
   String get tipoLabel => tipoEnum.label;
 
-  String get statusLabel => status ? 'Ativa' : 'Encerrada';
+  String get statusLabel => isAtiva ? 'Ativa' : 'Encerrada';
 
   Map<String, dynamic> toJson() {
     return {
@@ -62,7 +80,8 @@ class Interdicao {
       'latitude': latitude,
       'longitude': longitude,
       'tipo': tipo,
-      'status': status,
+      'data_inicio': formatDateTime(dataInicio),
+      'data_fim': dataFim != null ? formatDateTime(dataFim!) : null,
       'user_id': userId,
       'criado_em': criadoEm,
       'atualizado_em': atualizadoEm,
